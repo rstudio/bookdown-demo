@@ -4,9 +4,6 @@ env:
   global:
     - secure: "dCJPbgnWgIr+tHvTa/1X5HIJ3QzRLuQwQ8owh7PrcQnNL8taWToBv+4OR+DPKaE+CVpsBIbIYKl7PtzfvTqfOqRnFuZVOPaVgf6Pe+xSekSN4XpGfbiC3cjEV6ALv0T720BHQhDX1NqUGgjK0oU9rdPxWLdp3iEDTC2KD6u5hYdXRKy1O8w7P4V8KHZiOt2Hq8azOggWSAvjDJqrbbh1DOdPjUrC8GH9EegZ9REL8sPBtyayLn7YB/xq76oeAghlyJbTV1+wY/Xew4hnpk2AA1PArjI73H+dPUEUR/rojJamYQ/7YUqJZQd9/Ss01BKzla9UUFF69aQ+oROu2wd5qFnpH35uhMD6sgWaCvYDSehAZDB1DMQEDbiGFpogCzyHma3/JbQVPqMJdRsHQPDoNzWbapCY58HUyPgd7GbdnjGqj8vRYip//kK2ELJxlUZQRmS3/pS3BudpBOGh/D6lGYFUiybDhW3ZD5L5KqZ5Z2F+luIeUzmG3sZcQ+c7ilFcVMQLYl5D/ckNnI+iTVHuLEBgn6XTwtQNBprAz02rL0/nk7fzlfHFr/y8t2kcKOhn3YbStthnyMhSxvhA+UNk0+JJprnUbTMPG7IvEDpJtSv1npcgXNRO2Ldb4ynt6eAozakJmSX/sd5EC2bnzXXbzv7cIBQUbL+6SN6jjxYhT9A="
 
-r_github_packages:
-  - rstudio/bookdown
-
 install: true
 
 before_script:
