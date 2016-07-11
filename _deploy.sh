@@ -2,7 +2,7 @@
 
 set -e
 
-[ -z "${GH_TOKEN}" ] && exit 0
+[ -z "${GITHUB_PAT}" ] && exit 0
 [ "${TRAVIS_BRANCH}" != "master" ] && exit 0
 
 git config --global user.email "xie@yihui.name"
