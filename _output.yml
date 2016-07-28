@@ -13,4 +13,6 @@ bookdown::pdf_book:
     in_header: preamble.tex
   latex_engine: xelatex
   citation_package: natbib
+  template: null
+  pandoc_args: --chapters
 bookdown::epub_book: default
