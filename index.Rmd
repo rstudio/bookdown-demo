@@ -16,7 +16,7 @@ description: "This is a minimal example of using the bookdown package to write a
 
 This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports, e.g., a math equation $a^2 + b^2 = c^2$.
 
-For now, you have to install the development versions of **bookdown** from Github:
+For now, you have to install the development versions of **bookdown** from Github \index{Github}:
 
 ```{r eval=FALSE}
 devtools::install_github("rstudio/bookdown")
