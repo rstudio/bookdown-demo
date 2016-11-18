@@ -8,7 +8,7 @@
   <title>A Minimal Book Example</title>
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
   <meta name="description" content="This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook.">
-  <meta name="generator" content="bookdown 0.1.12 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.2.3 and GitBook 2.6.7">
 
   <meta property="og:title" content="A Minimal Book Example" />
   <meta property="og:type" content="book" />
@@ -25,14 +25,8 @@
 
 <meta name="author" content="Yihui Xie">
 
-  
-<meta name="date" content="2016-09-29">
 
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
-</script>
+<meta name="date" content="2016-11-18">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -143,7 +137,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="header">
 <h1 class="title">A Minimal Book Example</h1>
 <h4 class="author"><em>Yihui Xie</em></h4>
-<h4 class="date"><em>2016-09-29</em></h4>
+<h4 class="date"><em>2016-11-18</em></h4>
 </div>
 <div id="prerequisites" class="section level1">
 <h1><span class="header-section-number">Chapter 1</span> Prerequisites</h1>
@@ -173,6 +167,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
+"github": false,
 "facebook": true,
 "twitter": true,
 "google": false,
@@ -188,7 +183,7 @@ gitbook.start({
 },
 "edit": {
 "link": "https://github.com/rstudio/bookdown-demo/edit/master/index.Rmd",
-"text": null
+"text": "Edit"
 },
 "download": null,
 "toc": {
