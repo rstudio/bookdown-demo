@@ -2,6 +2,8 @@
 
 Some _significant_ applications are demonstrated in this chapter.
 
-## Example one
+## Example one  
+some stuff
 
-## Example two
+## Example two  
+more stuff

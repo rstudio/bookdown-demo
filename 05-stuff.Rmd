@@ -1,0 +1,3 @@
+# Stuff
+
+We describe some cool stuff in this chapter.
