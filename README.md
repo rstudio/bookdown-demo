@@ -1,3 +1,2 @@
-This is a minimal example of a book based on R Markdown and **bookdown** (https://github.com/rstudio/bookdown). Please see the page "Get Started" at https://bookdown.org/ for how to compile this example.
-
-You can find the preview of this example at https://bookdown.org/yihui/bookdown-demo/
+A free, open source probability and genetics book based our classes at [Westminster College](https://westminstercollege.edu/) in Salt Lake City.
+Made using Rstudio, Markdown, and **bookdown** (https://bookdown.org/ and https://github.com/rstudio/bookdown). 
