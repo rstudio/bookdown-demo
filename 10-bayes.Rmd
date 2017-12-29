@@ -1,0 +1,4 @@
+# Bayes Theorem {#bayes}
+
+Probability can give you (apparent) superpowers!
+

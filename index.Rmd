@@ -12,19 +12,11 @@ github-repo: rstudio/bookdown-demo
 description: "Probability and genetics, genetics and probability, free open-source book written in Rstudio with bookdown::gitbook."
 ---
 
-# Prerequisites
+# Preface {-}
 
-This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports, e.g., a math equation $a^2 + b^2 = c^2$.
+## Motivation
 
-For now, you have to install the development versions of **bookdown** from Github:
-
-```{r eval=FALSE}
-devtools::install_github("rstudio/bookdown")
-```
-
-Remember each Rmd file contains one and only one chapter, and a chapter is defined by the first-level heading `#`.
-
-To compile this example to PDF, you need to install XeLaTeX.
+## About the Authors
 
 ```{r include=FALSE}
 # automatically create a bib database for R packages

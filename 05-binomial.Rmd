@@ -1,0 +1,3 @@
+# The Binomial Distribution
+
+We describe some cool stuff about the Binomial Distribution in this chapter.
