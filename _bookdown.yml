@@ -1,4 +1,4 @@
-book_filename: "bookdown-demo"
+book_filename: "probgen-bookdown"
 language:
   ui:
     chapter_name: "Chapter "

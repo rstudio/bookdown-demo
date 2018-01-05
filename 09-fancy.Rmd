@@ -1,0 +1,4 @@
+# Fancier Distributions {#fancy}
+
+Oooh, fancy!
+
