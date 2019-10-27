@@ -1,5 +1,8 @@
-book_filename: "bookdown-demo"
+book_filename: "make money with machine learning - revisited"
 language:
   ui:
-    chapter_name: "Chapter "
+    chapter_name:
 delete_merged_file: true
+rmd_files:
+  html: ["index.Rmd", "introduction.Rmd", "finance.Rmd", "cybersecurity.Rmd", "healthcare.Rmd", "transportation.Rmd", "retail.Rmd", "agriculture.Rmd", "marketing.Rmd", "entertainment.Rmd", "iot.Rmd"]
+  latex: ["index.Rmd", "introduction.Rmd", "finance.Rmd", "cybersecurity.Rmd", "healthcare.Rmd", "transportation.Rmd", "retail.Rmd", "agriculture.Rmd", "marketing.Rmd", "entertainment.Rmd", "iot.Rmd"]
