@@ -1,0 +1,45 @@
+# Preamble
+
+“The human brain has 100 billion neurons, each neuron connect to ten thousands other neurons. 
+Sitting on your shoulders is the most complicated object in the known universe.” 
+- Michio Kaku
+
+The Brain — is wider than the Sky —
+For — put them side by side —
+The one the other will contain
+With ease — and You — beside —
+- Emily Dickinson
+
+
+Cognitive neuroscientists have the privilege to study the most complex organ nature has endowed us with, and the hardship of this endeavor is simply  as great as the complexity.
+
+
+# Scientific vision
+
+To gain deeper mechanistic insights on how the human mind conceives time the way it does. The dynamic scales at which neural computations operate are considered can be conceived as a chronoarchitecture. The notion of chronoarchitecture emphasizes that dynamic properties of neural activity do not solely reflect adaptive changes but also constraints that provide stability for a thinking mind to emerge. As such, our theoretical and empirical work is committed to entertain both endogenous (oscillatory regimes, prediction, culture) and exogenous factors (temporal statistics of sensory inputs, body movements) that shape temporal cognition in humans. 
+
+Our  scientific work uses traditional experimental psychology (psychophysics, questionnaires) combined with state-of-the-art neuroimaging techniques (MEG, EEG, fMRI), signal processing methods (spectral adn time-frequency analyses, source estimation, cross-frequency coupling, functional connectivity) and model-based neuroimaging (mTRF, decoding). 
+
+We try to foster opportunities to collaborate and contribute to applied research as well, when fundamental insights have been better understood.
+
+
+# Core Values
+
+Collegiality: the lab should be a give-give place in which we all learn from one another. Science is hard enough, foster being constructive and collaborative, not destructive or competitive.
+
+Integrity: everyone must follow strict institutional, scientific, and ethical guidelines. No exception.
+
+Creativity and Fun: "creativity is intelligence having fun"
+
+Excellence: you should target the highest quality of scientific research 
+
+
+
+Keywords: Ask, Collaborate, Persevere, Finish
+
+
+
+Antonio Damasio: "We are not thinking machines that feel; rather, we are feeling machines that think"
+
+# Scientific Integrity
+# Open Science 
