@@ -1,0 +1,49 @@
+# Preamble
+
+    The Brain - is wider than the Sky -
+    For - put them side by side -
+    The one the other will contain
+    With ease - and You - beside -
+    -Emily Dickinson 
+    -----------------------------------------------------------  
+    The human brain has 100 billion neurons, each neuron 
+    connect to ten thousands other neurons. 
+    Sitting on your shoulders is the most complicated object 
+    in the known universe.
+    -Michio Kaku
+
+Cognitive neuroscientists have the privilege to study the most complex organ nature has came up with. The hardship in understanding the brain may be as great as its complexity!
+
+
+**Scientific vision**
+
+To gain deeper mechanistic insights on how the human mind conceives time the way it does. The dynamic scales at which neural computations operate can be conceived as a chronoarchitecture. The notion of chronoarchitecture emphasizes that dynamic properties of neural activity do not solely reflect adaptive changes but also constraints that provide stability for a thinking mind to emerge.
+
+Our theoretical and empirical approach considers both endogenous (oscillatory regimes, prediction, culture) and exogenous (temporal statistics of sensory inputs, body movements) factors to be essential for temporal cognition. 
+
+Our scientific work uses tools from traditional experimental psychology (psychophysics, questionnaires) combined with state-of-the-art neuroimaging techniques (MEG, EEG, fMRI), signal processing methods (spectral and time-frequency analyses, source estimation, cross-frequency coupling, functional connectivity) and model-based neuroimaging (mTRF, decoding). 
+
+We try to foster collaborative opportunities that can be fundamental, multidisciplinary or applied.
+
+
+**Core Values**
+
+    We are not thinking machines that feel; 
+    rather, we are feeling machines that think
+    -Antonio Damasio**
+
+Collegiality: the lab should be a give-give place in which we all learn from one another. Science is hard enough, foster being constructive and collaborative, not destructive and competitive.
+
+Integrity: everyone must follow strict institutional, scientific, and ethical guidelines. No exception.
+
+Excellence: we  strive for the highest quality of scientific research.
+
+Creativity: 
+
+Perseverance: 
+
+Finish! 
+
+
+**Scientific Integrity**
+**Open Science**
