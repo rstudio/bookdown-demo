@@ -21,7 +21,7 @@ library("Hmisc") # For descriptive data analysis
 library(readr) # Import the data from your computer
 transreas <- read_csv("transreas.csv")
 ```
-Then,we run a descriptive analysis on our data.
+Then,we run a descriptive analysis on our data. Hey, Cheng, this is a typo.
 ```{r}
 # Use the summary() function to overview the data
 summary(transreas)
