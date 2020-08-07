@@ -5,10 +5,12 @@
 ### Rasch Models
 > Rasch Models
 
-- RSM = Rating Scale Model 
-- PCM = Partial Credit Model
-- MFRM = Many-facet Rasch Model
-- GLMM = Generalized Linear Mixed Models
+| Abbreviation | Description | 
+| :---        |    :----    | 
+| RSM | Rating Scale Model | 
+| PCM |Partial Credit Model | 
+| MFRM | Many-facet Rasch Model | 
+| GLMM | Generalized Linear Mixed Models |
 
 > Diagnostic and Exploratory Rasch Figures
 
@@ -23,18 +25,17 @@
 
 | Abbreviation | Description | 
 | :---        |    :----    | 
-| CML | Conditional Maximum Likelihood | 
+| CML(E) | Conditional Maximum Likelihood (Estimation) | 
 | EAP | Expected A Posterior (Estimate) | 
-| JML | Joint Maximum Likelihood | 
-
+| JML(E) | Joint Maximum Likelihood (Estimation) | 
+| MML(E) | Marginal Maximum Likelihood (Estimation) |
+| UCON(E) | Unconditional Maximum Likelihood (Estimation) | 
+| WLE | Weighted Likelihood Estimate | 
 
 ### Useful Rasch Software & R-Packages
 
 
 ## Rasch friendly Jounrals 
-
-
-## Rasch Calculation
 
 
 ## Rasch Model Application Tempaltes

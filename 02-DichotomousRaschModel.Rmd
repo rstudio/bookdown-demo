@@ -1,7 +1,21 @@
 # Dichotomous Rasch Models {#Dich_Rasch_model}
 
-## Call Back
-$$Pr(Xi=1|θs,δi)=exp(θs−δi)1+exp(θs−δi)$$
+## Dichotomous Rasch Models
+
+### Definition
+
+$$\ln_{}{}\left[\frac{\phi_{n i 1}}{\phi_{n i 0}}\right]=\theta_{n}-\delta_{i}$$
+The Rasch model predicts the probability of person *n* on item *i* providing a correct (x = 1), rather than incorrect (x = 0) response, given a person’s “ability” (*θn*) and an item’s difficulty (*δi*).
+
+### Basic Rasch Model & IRT Model Assumptions
+
+- Each person can be characterized by an ability (i.e., level), denoted as *θn*
+
+- Each item can be characterized by a difficulty, denoted as *δi*
+
+- Person ability and item difficulty can be expressed on one linear continuum (line)
+
+- The probability of observing any particular response can be calculated from the difference between ability and difficulty
 
 ## R-Lab: Running Dichotomous Rasch Model in R
 
@@ -89,15 +103,20 @@ Visualize the Person ability by using a simple histogram
 hist(Person_ability$theta)
 ```
 
-
 Calculate the Person fit statistics
 ```{r}
 Di_Person_fit <- tam.personfit(Di_Rasch_model) 
 head(Di_Person_fit)
 ```
 
-## Reference
+## Exericise
+
+
+
+## Supplementary Learning Materials
 
 [Li, Y. Using the open-source statistical language R to analyze the dichotomous Rasch model. Behavior Research Methods 38, 532–541 (2006). https://doi.org/10.3758/BF03192809](https://link.springer.com/content/pdf/10.3758/BF03192809.pdf)
+
+[Rasch, G. (1960/1980). Probabilistic models for some intelligence and attainment tests.(Copenhagen, Danish Institute for Educational Research), expanded edition (1980) with foreword and afterword by B.D. Wright. Chicago: The University of Chicago Press.](https://eric.ed.gov/?id=ED419814)
 
 
