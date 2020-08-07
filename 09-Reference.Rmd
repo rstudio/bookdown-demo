@@ -1,0 +1,43 @@
+# Reference & Other Good Stuff {#Ref1}
+
+## Abbreviations
+
+### Rasch Models
+> Rasch Models
+
+- RSM = Rating Scale Model 
+- PCM = Partial Credit Model
+- MFRM = Many-facet Rasch Model
+- GLMM = Generalized Linear Mixed Models
+
+> Diagnostic and Exploratory Rasch Figures
+
+| Abbreviation | Description | 
+| :---        |    :----    | 
+| ICC | Item Characteristic Curve | 
+| IIC | Item Information Function | 
+| IRF | Item Response Function | 
+| TCC | Test Characteristic Curve | 
+
+> Estimation methods and Estimates
+
+| Abbreviation | Description | 
+| :---        |    :----    | 
+| CML | Conditional Maximum Likelihood | 
+| EAP | Expected A Posterior (Estimate) | 
+| JML | Joint Maximum Likelihood | 
+
+
+### Useful Rasch Software & R-Packages
+
+
+## Rasch friendly Jounrals 
+
+
+## Rasch Calculation
+
+
+## Rasch Model Application Tempaltes
+
+
+## Reference for this book

@@ -1,0 +1,103 @@
+# Dichotomous Rasch Models {#Dich_Rasch_model}
+
+## Call Back
+$$Pr(Xi=1|θs,δi)=exp(θs−δi)1+exp(θs−δi)$$
+
+## R-Lab: Running Dichotomous Rasch Model in R
+
+### Prepare the R Packages for analysis
+In this session, we use "TAM" package to do the Rasch Analysis. TAM is actually the abbreviation for *"Test Analysis Modules"*. Different from the *Winstep* software, it applies marginal maximum likelihood estimation (MMLE) instead of joint maximum likelihood estimation (JMLE).
+Note: Because of the different way of the estimation, the result might be slightly different with your *Winstep* outcomes.
+
+```{r message=FALSE, warning=FALSE}
+# Load the R package that we need for this analysis
+library("TAM") # For Dichotomous Rasch Analysis
+library("WrightMap") # For plotting the variable map
+library("Hmisc") # For descriptive data analysis
+```
+
+### Import the data & Running descriptive analysis
+```{r message=FALSE}
+library(readr) # Import the data from your computer
+transreas <- read_csv("transreas.csv")
+```
+Then,we run a descriptive analysis on our data.
+```{r}
+# Use the summary() function to overview the data
+summary(transreas)
+# From the result, we can see there is no missing data for each variable. And we can also get a general idea on the range of the grades (from 2 to 6), Min, Max, Median for each task. 
+# You can also use describe() function as an alternative approach
+describe(transreas)
+```
+
+### Runing the Dichotomous Rasch Model
+For running the dichotomous Rasch Model using TAM package, we only need students' scores. So the first and second column of our data are not needed. 
+```{r}
+# Trim the data
+Di_Rash_data <- transreas[,c(-1,-2)]
+head(Di_Rash_data) # Take a look
+```
+
+```{r results='hide'}
+# Running the Rasch Dichotomous Model
+Di_Rasch_model <- tam(Di_Rash_data)
+```
+
+### Overall Model Summary
+
+```{r}
+# Check the summary
+summary(Di_Rasch_model)
+# Plot the variable-Map
+IRT.WrightMap(Di_Rasch_model,show.thr.lab=FALSE)
+```
+
+### Item Parameters
+First of all, let's pool out the item parameters from your model.
+```{r}
+difficulty <- Di_Rasch_model$xsi
+head(difficulty) 
+```
+
+- The 'xis' column denotes the item difficulty in a logit scale. And 'se.xsi' is the standard error for each item. The standard error tells us whether item difficulties may overlap or not.
+
+- Since the `xsi` indicates the item difficulty, the higher the value refer to the harder the item. For instance, item 9 is the hardest item ( `xsi` = 1.00), whereas the item 6 is the easiest item (`xsi` = -4.07).
+
+We can also visualize the item difficulty by using a simple histogram
+```{r}
+hist(difficulty$xsi,breaks=10) 
+```
+
+Now let's calculate the Item fit statistics
+```{r}
+Di_Item_fit <- tam.fit(Di_Rasch_model) 
+head(Di_Item_fit)
+```
+
+### Person Parameters
+Get the person ability by using `tam.wle` function
+
+```{r}
+Person_ability <- tam.wle(Di_Rasch_model)
+# View(Person_ability)
+# In the data frame above, the `theta` is the person's ability measure in a logit scale.
+mean(Person_ability$theta)
+``` 
+
+Visualize the Person ability by using a simple histogram
+```{r}
+hist(Person_ability$theta)
+```
+
+
+Calculate the Person fit statistics
+```{r}
+Di_Person_fit <- tam.personfit(Di_Rasch_model) 
+head(Di_Person_fit)
+```
+
+## Reference
+
+[Li, Y. Using the open-source statistical language R to analyze the dichotomous Rasch model. Behavior Research Methods 38, 532–541 (2006). https://doi.org/10.3758/BF03192809](https://link.springer.com/content/pdf/10.3758/BF03192809.pdf)
+
+
