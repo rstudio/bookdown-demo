@@ -182,7 +182,7 @@ Table3$Infit_t <- Di_Person_fit$infitPerson_t
 
 
 
-## Example APA-Style Results Write-Up (Transitive Reasoing Test)
+## Example APA-Style Results Write-Up (Transitive Reasoning Test)
 
 Table 1 presents a summary of the results from the analysis of the transitive reasoning data [Sijtsma and Molenaar,2002](https://methods.sagepub.com/book/introduction-to-nonparametric-item-response-theory) using the dichotomous Rasch model ([Rasch, 1960](https://eric.ed.gov/?id=ED419814)). Specifically, the calibration of test participants (*N* = 425) and Tasks (*N* = 10) are summarized using average logit-scale calibrations, standard errors, and model-data fit statistics. Examination of the results indicates that, on average, the task takers were located higher on the logit scale (*M* = -0.056,*SD* = 1.281), compared to Tasks (*M* = -1.936, *SD* = 1.281). This finding suggests that the items were relatively easy for the sample of kids who participated in this transitive reasoning test. However, average values of the Standard Error (*SE*) are slightly higher for Kids (*M* = 1.023) than Tasks (*M* = 0.17), indicating that there may be some issues related to targeting for some of the Kids who participated in the assessment. Average values of model-data fit statistics indicate overall adequate fit to the model, with average Infit and Outfit mean square statistics around 1.00, [and average standardized Infit and Outfit statistics near the expected value of 0.00 when data fit the model.] **This sentence needs rephrase.** This finding of adequate fit to the model supports the interpretation of item and person calibrations on the logit scale as indicators of their locations on the latent variable measured by the test.
 
@@ -215,7 +215,8 @@ Figure 1 illustrates the calibrations of the Participants and Items on the logit
 
 ## Exericise
 
-Use the Simulated Data to Run Dichotomous Rasch Model using TAM package.
+Use the simulated data to run Dichotomous Rasch Model using TAM package.
+
 [The Data could be either attached to this site or Blackboard]
 
 ## Supplementary Learning Materials
