@@ -100,7 +100,7 @@ sd(difficulty$xsi) # The standard deviation for task difficulty is 1.56
 mean(difficulty$se.xsi) # The mean Standard Error for task difficulty is 0.171.
 ```
 
-- The 'xis' column denotes the item difficulty in a logit scale; 'se.xsi' is the standard error for each item. The standard error is an estimate of the precision of the item difficulty estimates, where larger standard errors indicate less precise estimates.
+- The 'xsi' column denotes the item difficulty in a logit scale; 'se.xsi' is the standard error for each item. The standard error is an estimate of the precision of the item difficulty estimates, where larger standard errors indicate less precise estimates.
 
 - Since the `xsi` indicates the item difficulty, higher values indicate more-difficult items (higher levels of the construct are required for a positive response). For instance, item 9 is the hardest item ( `xsi` = 1.00), whereas item 6 is the easiest item (`xsi` = -4.07).
 
