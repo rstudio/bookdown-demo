@@ -1,24 +1,24 @@
 # Model-data fit analyses {#MD_fit}
 
 ## R-Lab: Model-data fit analysis
-For the previous lab, we used R package "TAM" [(Robitzsch et al., 2018)](https://cran.r-project.org/web/packages/eRm/eRm.pdf) for running the Dichotomous Rasch Analysis. This lab, we will focus on another R Rasch package, which is the "eRm" package [(Mair & Hatzinger, 2007)](https://cran.r-project.org/web/packages/TAM/TAM.pdf). Please note that when we use "TAM" package with the MML estimation method, the item-person map looks a bit different compared with that produced by the "eRm" package which applies CML estimation.
+For the previous lab, we used the R package "TAM" [(Robitzsch et al., 2018)](https://cran.r-project.org/web/packages/eRm/eRm.pdf) to run the Dichotomous Rasch analyses. In this lab, we will focus on another R Rasch package, which is the "eRm" package [(Mair & Hatzinger, 2007)](https://cran.r-project.org/web/packages/TAM/TAM.pdf). Please note that when we used "TAM" package with the MML estimation method, the item-person map looks a bit different compared with that produced by the "eRm" package which applies CML estimation.
 
 ### Get Data Prepared
-We are going to practice evaluating model-data fit with the transitive reasoning data from previous lab.
+We are going to practice evaluating model-data fit with the transitive reasoning data from the previous lab.
 
 ```{r message=FALSE}
 # Load the R-packages that you're going to use
 library("eRm") # For running the Dichotomous Rasch Model
-library("readr") # For import the data
+library("readr") # To import the data
 ```
 
 ```{r message=FALSE}
 # Import the data
-transreas <- read_csv("transreas.csv")
+transreas <- read.csv("transreas.csv") # Cheng - note that I changed to "read.csv" because I'm not sure what package you were using for read_csv()
 ```
 
 ### Trim the data
-The same with "TAM" package, we only need the completed responses matrix for running the Dichotomous Rasch model with the "eRm" package.
+Similar to the "TAM" package, we only need the responses to run the Dichotomous Rasch model with the "eRm" package. To get started, we need to remove the first two columns from the dataframe.
 
 ```{r}
 # Trim the data
@@ -26,18 +26,19 @@ Di_Rasch_data <- transreas[,c(-1,-2)]
 head(Di_Rasch_data) # Take a look
 ```
 ### Running Dichotomous Rasch Model with "eRm" package
-We use the "RM" function to run the Rasch dichotomous model. This function computes the parameter estimates of a Rasch model for binary item responses by usiong CML estimation.
+We will use the "RM" function to run the Rasch dichotomous model. This function computes the parameter estimates of a Rasch model for binary item responses by using CML estimation.
+
 ```{r}
 # Running the Dichotomous Rasch Model
 Di_Rasch_model <- RM(Di_Rasch_data)
 # Check the Overall model summary
 summary(Di_Rasch_model)
 ```
-Note the lower table indicates the easiness of the Item. This is exactly the item difficulty on the opposite direction. The higher value of this parameter indicates the easier item among all the items.
+Note the Estimate in this output indicates the easiness of the Item. This is exactly the item difficulty, but in the opposite direction. The higher the value of this parameter, the easier the item is compared to the other items. You can multiply this value by -1 to get item difficulty.
 
 ## Model-data fit Analysis in R
 
-The Model-data fit in the context of Rasch is different from other IRT models. Other IRT approach is focus on finding the _best model_ to fit the data. However, the Rasch approach focuses on diagnosing departures from model expectations. In Rasch, model is viewed as an _"ideal type"_. It is a theoretical mathematical description of what measurement looks like. It's fit statistics summarize discrepancies between observations and expectations.
+The Model-data fit in the context of Rasch is different from other IRT models. Other IRT approach is focus on finding the _best model_ to fit the data. However, the Rasch approach focuses on diagnosing departures from model expectations. Within the Rasch framework, the model is viewed as an _"ideal type"_. It is a theoretical mathematical description of what measurement looks like. Its fit statistics summarize discrepancies between observations and expectations to help researchers improve their measurement procedures.
 
 ### Reliability Indices in Rasch Measurement
 
@@ -45,9 +46,9 @@ The Model-data fit in the context of Rasch is different from other IRT models. O
 
 >  The general notion of reliabilty/precision is defined in terms of consistency over replications of the testing procedure. Reliability/precision is high if  the scores for each person are consistent over replications of the testing procedure and is low if the scores are not consistent over replications. (p. 35, emphasis added)
 
-From Rasch perspective, the focus is on **ordering** and **separation** on the logit scale. There are two major indices calculated for items and persons: one is the reliability of separation, and the other the Chi-Square.
+From a Rasch perspective, the focus for reliability analyses is on **ordering** and **separation** on the logit scale. There are two major indices calculated for items and persons: one is the reliability of separation, and the other is the Chi-Square separation statistic.
 
-The Rasch reliability of separation is calculated for each facet in the model (e.g., items & persons), which is the estimate of **How well we can differentiate** individual items, persons, or other elements on the latent variable. It is conceptually related to Cronbach's alpha coefficient. The interpretation is the same when data fit the model, ranges from 0 to 1. 
+The Rasch reliability of separation is calculated for each facet in the model (e.g., items & persons), and it is an estimate of **how well we can differentiate** individual items, persons, or other elements on the latent variable. It is conceptually related to Cronbach's alpha coefficient. The interpretation is the same when data fit the model. The statistic ranges from 0 to 1. 
 
 #### Reliability of Person Separation
 Calculated using a ratio of true (adjusted) variance to observed variance for persons:
