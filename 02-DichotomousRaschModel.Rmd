@@ -220,8 +220,6 @@ Use the simulated data to run Dichotomous Rasch Model using TAM package.
 [The Data could be either attached to this site or Blackboard]
 
 
-
-
 ## Supplementary Learning Materials
 
 [Rasch Estimation Demonstration Spreadsheet](https://www.rasch.org/moulton.xls)

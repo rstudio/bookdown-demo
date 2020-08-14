@@ -1,2 +1,179 @@
 # Model-data fit analyses {#MD_fit}
 
+## R-Lab: Model-data fit analysis
+For the previous lab, we used R package "TAM" [(Robitzsch et al., 2018)](https://cran.r-project.org/web/packages/eRm/eRm.pdf) for running the Dichotomous Rasch Analysis. This lab, we will focus on another R Rasch package, which is the "eRm" package [(Mair & Hatzinger, 2007)](https://cran.r-project.org/web/packages/TAM/TAM.pdf). Please note that when we use "TAM" package with the MML estimation method, the item-person map looks a bit different compared with that produced by the "eRm" package which applies CML estimation.
+
+### Get Data Prepared
+We are going to practice evaluating model-data fit with the transitive reasoning data from previous lab.
+
+```{r message=FALSE}
+# Load the R-packages that you're going to use
+library("eRm") # For running the Dichotomous Rasch Model
+library("readr") # For import the data
+```
+
+```{r message=FALSE}
+# Import the data
+transreas <- read_csv("transreas.csv")
+```
+
+### Trim the data
+The same with "TAM" package, we only need the completed responses matrix for running the Dichotomous Rasch model with the "eRm" package.
+
+```{r}
+# Trim the data
+Di_Rasch_data <- transreas[,c(-1,-2)]
+head(Di_Rasch_data) # Take a look
+```
+### Running Dichotomous Rasch Model with "eRm" package
+We use the "RM" function to run the Rasch dichotomous model. This function computes the parameter estimates of a Rasch model for binary item responses by usiong CML estimation.
+```{r}
+# Running the Dichotomous Rasch Model
+Di_Rasch_model <- RM(Di_Rasch_data)
+# Check the Overall model summary
+summary(Di_Rasch_model)
+```
+Note the lower table indicates the easiness of the Item. This is exactly the item difficulty on the opposite direction. The higher value of this parameter indicates the easier item among all the items.
+
+## Model-data fit Analysis in R
+
+The Model-data fit in the context of Rasch is different from other IRT models. Other IRT approach is focus on finding the _best model_ to fit the data. However, the Rasch approach focuses on diagnosing departures from model expectations. In Rasch, model is viewed as an _"ideal type"_. It is a theoretical mathematical description of what measurement looks like. It's fit statistics summarize discrepancies between observations and expectations.
+
+### Reliability Indices in Rasch Measurement
+
+> Definition of reliability in the 2014 Test Standards
+
+>  The general notion of reliabilty/precision is defined in terms of consistency over replications of the testing procedure. Reliability/precision is high if  the scores for each person are consistent over replications of the testing procedure and is low if the scores are not consistent over replications. (p. 35, emphasis added)
+
+From Rasch perspective, the focus is on **ordering** and **separation** on the logit scale. There are two major indices calculated for items and persons: one is the reliability of separation, and the other the Chi-Square.
+
+The Rasch reliability of separation is calculated for each facet in the model (e.g., items & persons), which is the estimate of **How well we can differentiate** individual items, persons, or other elements on the latent variable. It is conceptually related to Cronbach's alpha coefficient. The interpretation is the same when data fit the model, ranges from 0 to 1. 
+
+#### Reliability of Person Separation
+Calculated using a ratio of true (adjusted) variance to observed variance for persons:
+$$Rel_{p}=\left(SA_{P}^{2}\right) /\left(SD_{P}^{2}\right)$$
+Where:
+	  *SA^2^~P~* : Adjusted person variability;
+    Calculated by subtracting error variance for persons from total person          variance: $$ SA_{P}^{2} = SD_{P}^{2} - SE_{P}^{2}$$
+	  *SD^2^~P~* : Total person variance
+
+#### Calculate the Reliability of Person Separation
+The "eRm" package provides function "SepRel" to calculate the person separation reliability. This function calculates the proportion of person variance that is not due to error. The concept of person separation reliability is very similar to reliability indices such as Cronbach's α.
+
+```{r}
+# Get the person parameter first by using the "person.parameter" function
+person_pa <- person.parameter(Di_Rasch_model)
+# Calculate the Reliability of Person Separation
+summary(SepRel(person_pa))
+```
+
+#### Reliability of Item Separation
+Calculated using a ratio of true (adjusted) variance to observed variance for Items:
+$$Rel_{I}=\left(SA_{I}^{2}\right) /\left(SD_{I}^{2}\right)$$
+Where:
+	  *SA^2^~I~* : Adjusted Item variability;
+    Calculated by subtracting error variance for Item from total Item          variance: $$ SA_{I}^{2} = SD_{I}^{2} - SE_{I}^{2}$$
+	  *SD^2^~I~* : Total Item variance
+	  
+### Item Information Curve (*IIC*)
+Many IRT analyses also look at item information as evidence for precision. This is a statistical summary of the variance of item responses about a certain range on the latent variable. We can use this information to find out **if** and **where** items are providing information about person locations
+IIC is not a major component of Rasch analyses. The information is the same for all items in the dichotomous model (same shape)
+
+```{r}
+# Use "plotINFO" function for visualizing the item information
+plotINFO(Di_Rasch_model)
+```
+
+### Summaries of residuals: Infit & Outfit
+
+Commonly used Rasch fit statistics are based on summed squared residuals. They have two major types: Unweighted (Outfit) and Weighted (Infit). Unstandardized (χ2) & standardized versions (Z) are available in most Rasch software. In R, we use the Unstandardized (χ2) version.
+
+#### Outfit Mean Square Error (MSE)
+
+Outfit is “Unweighted fit”. For items, it is the sum of squared residuals for an item divided by the number of persons who responded to the item. For persons, it is Sum of squared residuals for a person divided by the number of items encountered by the person.
+
+The outfit is sensitive to extreme departures from model expectations. Examples: A high-achieving student provides an incorrect response to a very easy item; A low-achieving student provides a correct response to a very difficult item.
+
+#### Infit Mean Square Error (MSE)
+
+Infit is "Information-weighted fit", where information is equal to variance, such as larger variance for well-targeted observations, or smaller variance for extreme observations.
+
+For items, it is the sum of squared standardized *item residuals*, weighted by variance, divided by the number of persons who responded to the item. For persons, it is the sum of squared standardized *person residuals*, weighted by variance, divided by the number of items the person encountered.
+
+The Infit is sensitive to less-extreme unexpected response. Examples such as: A person provides an incorrect response to an item that is just below their achievement level, or A person provides a correct response to an item that is just above their achievement level.
+
+#### Expected values for MSE Fit Statistics
+
+Generally accepted rule-of-thumb:
+
+- Expected value is about 1.00 when data fit the model
+
+- Less than 1.00: Responses are too predictable; match a Guttman-like (deterministic) pattern (“muted”)
+
+- More than 1.00: Responses are too haphazard (“noisy”)
+
+- Some variation is expected, but noisy responses are usually more cause for concern than muted responses
+
+Frequently Used Critical Values for Mean Square Fit Statistics [(Bond & Fox, p. 273, Table 12.7)](https://psycnet.apa.org/record/2007-07586-000)
+
+| *Type of Instrument* | *"Acceptable Range"* | 
+| :---:        |    :----:   | 
+| Multiple-choice test (high-stakes) | 0.80 – 1.20 | 
+| Multiple-choice test (not high-stakes)| 0.70 – 1.30 | 
+| Rating scale | 0.60 – 1.40 | 
+| Clinical observation | 0.50 – 1.70 | 
+| Judgment (when agreement is encouraged) | 0.40 – 1.20| 
+
+*Note: These critical values are a very contentious topic in Rasch measurement!!!
+
+#### Calculate the Infit & Outfit in R 
+```{r}
+# Calculate the Item fit statistics using "itemfit" function on your person parameter object
+itemfit(person_pa)
+```
+```{r}
+# Calculate the Person fit statistics
+person_fit <- personfit(person_pa)
+# Also, you can use the "personMisfit" function to find the person who misfit 
+misfit_person <- PersonMisfit(person_pa)
+misfit_person
+# About 1.6043% persons are misfitting
+misfit_person$count.misfit.Z
+# The detailed number for misfitting is 6
+misfit_person$total.persons
+# This is the number of persons for whom a fit value was estimated
+```
+
+### Item/Person Map
+The "eRm" package provides plotting function to show the location of item/person on bothe logit scale and their t stastistics.
+
+```{r}
+plotPWmap(Di_Rasch_model) # You can plot the Item Map
+plotPWmap(Di_Rasch_model,pmap=TRUE) # Or you can plot the person Map
+plotPWmap(Di_Rasch_model,imap=TRUE,pmap=TRUE) # You can even put the person and item inside one map
+```
+
+### Item Characteristic Curves (ICC)/ Item Response Functions (IRF)
+The *IRFs/ICCs* that we have been looking at are based on model-expected response probabilities.
+
+```{r}
+plotICC(Di_Rasch_model,mplot=TRUE)
+```
+Note that the R package did not plot the observed probability.
+
+### Person Response Functions
+Also, we can use "PerFit" package to plot Person Response Function (PRF).
+```{r}
+# library("PerFit") # For plot Person Response Function
+# By specify the respID argument, we can achieve any test takers PRF plot.
+# PRFplot(Di_Rasch_data,respID=148)
+```
+
+
+
+
+## Supplmentary Learning Materials
+1. [*What do Infit and Outfit, Mean-Square and Standardized mean?*](https://www.rasch.org/rmt/rmt162f.htm)
+
+2. [Wright, B.D., & Masters, G.N. (1990). Computation of OUTFIT and INFIT Statistics. *Rasch Measurement Transactions,3(4)* p.84-85.](https://www.rasch.org/rmt/rmt34e.htm)
+

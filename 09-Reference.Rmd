@@ -25,6 +25,7 @@
 
 | Abbreviation | Description | 
 | :---        |    :----    | 
+| AML(E) | Anchored Maximum Likelihood (Estimation)|
 | CML(E) | Conditional Maximum Likelihood (Estimation) | 
 | EAP | Expected A Posterior (Estimate) | 
 | JML(E) | Joint Maximum Likelihood (Estimation) | 
