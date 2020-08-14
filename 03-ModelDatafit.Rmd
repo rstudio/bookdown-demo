@@ -167,8 +167,8 @@ Note that the R package did not plot the observed probability.
 ### Person Response Functions
 Also, we can use "PerFit" package to plot Person Response Function (PRF).
 ```{r}
-# library("PerFit") # For plot Person Response Function
-# By specify the respID argument, we can achieve any test takers PRF plot.
+ library("PerFit") # We will use this package to plot Person Response Functions
+# By specify the respID argument, we can achieve any test taker's PRF plot.
 # PRFplot(Di_Rasch_data,respID=148)
 ```
 
