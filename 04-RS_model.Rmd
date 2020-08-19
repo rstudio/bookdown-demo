@@ -2,12 +2,12 @@
 
 ## Rasch Rating Scale Model
 
-Rasch Rating Scale Model (RSM) is developed by [Andrich(1978)](https://link.springer.com/article/10.1007/BF02293814) for continuous data. It provides estimates of a; *Person locations*, b; *Item Difficulties* and c; *An overall set of thresholds (fixed across items)*.
+The Rasch Rating Scale Model (RSM; sometimes also called the Polytomous Rasch model) was developed by [Andrich(1978)](https://link.springer.com/article/10.1007/BF02293814) for polytomous data (data with >= 2 ordinal categories). It provides estimates of a; *Person locations*, b; *Item Difficulties* and c; *An overall set of thresholds (fixed across items)*.
 
 Rating Scale Model Equation
 
 $$ln\left[\frac{P_{n_i(x=k)}}{P_{n_i(x=k-1)}}\right]=\theta_{n}-\delta_{i}-\tau_{k}$$
-Where $\theta$ is the person's ability, $\delta$ is the item's difficulty, and $\tau$ is the thresholds which are estimated empirically for the whole set of items. The RSM supposed that the **threshold structure** is fixed across items. The relative distance between thresholds is the same across items, but items still have different difficulties. The thresholds just move up or down the logit scale.
+Where $\theta$ is the person's ability, $\delta$ is the item's difficulty, and $\tau$ is the thresholds which are estimated empirically for the whole set of items. The RSM assumes that the **threshold structure** is fixed across items. The relative distance between thresholds is the same across items, but items still have different difficulties. The thresholds just move up or down the logit scale.
  
 ## R-Lab: Rasch Rating Scale Model with "eRm" package
 
@@ -19,7 +19,7 @@ library(plyr)
 ```
 
 ### Information about the data
-We are going to practice run the Rating Scale (RS) model with "TAM" package. Specifically, we will be working with data from a writing assessment in which students received polytomous ratings on essays.
+We are going to practice running the Rating Scale (RS) model using the "TAM" package. Specifically, we will be working with data from a writing assessment in which students received polytomous ratings on essays. Several researchers have used this dataset in published studies, and it is considered a classic example of rating data. 
 
 The original data collection design is described by [Braun(1988)](https://onlinelibrary.wiley.com/doi/epdf/10.1002/j.2330-8516.1988.tb00281.x). The original dataset includes ratings for 32 students by 12 raters on three separate essay compositions. For this lab, we will look at the data from Essay 1. For ease of interpretation, the essay ratings from the original dataset have been recoded from nine categories to three categories (1 = low achievement, 2 = middle achievement; 3 = high achievement).
 
@@ -28,21 +28,20 @@ In our analysis, we will treat the 12 raters as 12 polytomous “items” that s
 ### Get Data Prepared
 we will try running a polytomous Rasch model using some of the example data that is provided with the TAM package.
 
-***Note** If you want to use "eRm" package to run the Rating Scale model, you need to make sure that each item has the same response categories. 
+***Note** If you want to use the "eRm" package to run the Rating Scale model, you need to make sure that each item has responses in the same categories as each of the other items. 
 
 ```{r message=FALSE}
 # Load the data
-braun_data <- read_csv("braun data.csv")
+braun_data <- read.csv("braun data.csv") # changed from read_csv
 head(braun_data)
-# Overview the data by use summary function
+# Get a quick overview of the data with the summary() function
 summary(braun_data)
-# Trim the data because the TAM package only need response matrix.
+# Trim the student id variable from the dataframe because the TAM package only needs response matrix.
 rs_data <- braun_data[,-1]
 ```
 
 ### Run the Rating Scale Model 
 ```{r message=FALSE, results='hide'}
-# Before we run the Rating Scale model, we need to trim the data because the R only needs the response matrix to run the analysis.
 # Run the Rating Scale Model
 rs_model <- TAM::tam.mml(rs_data, irtmodel="RSM") 
 ```
@@ -56,18 +55,18 @@ summary(rs_model)
 Wright Map or Variable Map
 ```{r}
 # Plot the Variable Map
-IRT.WrightMap(rs_model,show.thr.lab=TRUE)
+IRT.WrightMap(rs_model,show.thr.lab=TRUE) # what package is this from? It did not run for SW
 ```
 
 Expected Response Curves
 ```{r}
 # Plot expected response curves
-plot(rs_model,ask=TRUE)
+plot(rs_model,ask=FALSE)
 ```
 
 Item characteristic curves (but now as thresholds)
 ```{r}
-plot(rs_model, type="items")
+plot(rs_model, type="items") # does not work for SW
 ```
 
 ### Item estimates and fit Statistics
