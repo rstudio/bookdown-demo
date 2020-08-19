@@ -33,6 +33,16 @@ We will use the "RM" function to run the Rasch dichotomous model. This function 
 Di_Rasch_model <- RM(Di_Rasch_data)
 # Check the Overall model summary
 summary(Di_Rasch_model)
+# To achieve the Item difficulty
+item.diff <- Di_Rasch_model$betapar * -1
+item.diff
+# Use the summary() function to get a quick numeric summary of the item parameters
+summary(item.diff)
+# We can see that the average item difficulty value is 0.00 logits, and item difficulties range from -2.18 to 1.04 logits.
+# We can also look at the standard errors for the item locations:
+item.se <- Di_Rasch_model$se.beta
+item.se
+summary(item.se)
 ```
 Note the Estimate in this output indicates the easiness of the Item. This is exactly the item difficulty, but in the opposite direction. The higher the value of this parameter, the easier the item is compared to the other items. You can multiply this value by -1 to get item difficulty.
 
@@ -55,7 +65,7 @@ Calculated using a ratio of true (adjusted) variance to observed variance for pe
 $$Rel_{p}=\left(SA_{P}^{2}\right) /\left(SD_{P}^{2}\right)$$
 Where:
 	  *SA^2^~P~* : Adjusted person variability;
-    Calculated by subtracting error variance for persons from total person          variance: $$ SA_{P}^{2} = SD_{P}^{2} - SE_{P}^{2}$$
+    Calculated by subtracting error variance for persons from total person variance: $$ SA_{P}^{2} = SD_{P}^{2} - SE_{P}^{2}$$
 	  *SD^2^~P~* : Total person variance
 
 #### Calculate the Reliability of Person Separation
@@ -132,13 +142,28 @@ Frequently Used Critical Values for Mean Square Fit Statistics [(Bond & Fox, p. 
 #### Calculate Infit & Outfit for the transitive reasoning data
 ```{r}
 # Calculate the Item fit statistics using "itemfit" function on your person parameter object
-itemfit(person_pa)
+Di_itemfit <- itemfit(person_pa)
+Di_itemfit
 ```
+This table will give us information about the infit and outfit statistics for each item. Please review our lecture materials for details about the interpretation of these values, noting that we generally expect these statistics to be around 1.00.
+
 ```{r}
 # Calculate the Person fit statistics
 person_fit <- personfit(person_pa)
+# Since person_fit is a long list, we can summarize it to get the aggregated value.
+summary(person_fit$p.infitMSQ)
+summary(person_fit$p.outfitMSQ)
+```
+
+- We can see that there is some variability in person fit, with infit MSE statistics ranging from 0.41 to 2.25, and outfit MSE statistics ranging from 0.17 to 7.30:
+
+- From this fit analysis, we can see that the mean of the infit MSE and outfit MSE statistics are close to 1.0. 
+
+
+```{r}
 # Also, you can use the "personMisfit" function to find the person who misfit 
-misfit_person <- PersonMisfit(person_pa) # cheng - What is the critical value used here to classify person misfit???
+misfit_person <- PersonMisfit(person_pa) 
+# This function counts the number of persons who do not fit the Rasch model. More specifically, it returns the proportion and frequency of persons - or more generally cases - who exceed a Chi-square based Z-value of 1.96 (suggesting a statistically significant deviation from the predicted response pattern).
 misfit_person
 # About 1.6043% persons are misfitting
 misfit_person$count.misfit.Z
@@ -148,15 +173,24 @@ misfit_person$total.persons
 ```
 
 ### Item/Person Map
-The "eRm" package provides plotting function to show the location of item/person on bothe logit scale and their t stastistics.
+The "eRm" package provides plotting function to show the location of item/person on both logit scale and their t stastistics.
 
 ```{r}
 plotPWmap(Di_Rasch_model) # You can plot the Item Map
 plotPWmap(Di_Rasch_model,pmap=TRUE) # Or you can plot the person Map
 plotPWmap(Di_Rasch_model,imap=TRUE,pmap=TRUE) # You can even put the person and item inside one map
 ```
+Also, we can construct a plot that shows item and person locations in the same graphical display (a Person-Item Map). 
+```{r}
+#To do this, use the following code:
+plotPImap(Di_Rasch_model, sorted = TRUE)
+```
+In this plot, we should consider the degree to which there is evidence of overlap between item and person locations (targeting).
 
-### Item Characteristic Curves (ICC)/ Item Response Functions (IRF)
+We can also examine the individual items’ ordering on the logit scale with reference to our theory about the expected ordering.
+
+
+### Item Characteristic Curves (ICC)
 The *IRFs/ICCs* that we have been looking at are based on model-expected response probabilities.
 
 ```{r}
@@ -164,15 +198,39 @@ plotICC(Di_Rasch_model,mplot=TRUE, ask = FALSE)
 ```
 Note that the R package did not plot the observed probability.
 
-### Person Response Functions
-Also, we can use "PerFit" package to plot Person Response Function (PRF).
+### Plots of standardized residuals
+Let’s use some graphical displays to examine item fit in more detail. Please review our lecture materials for details about these displays. These plots show the standardized residual for the difference between the observed and expected response for each person on the item of interest.
 ```{r}
- library("PerFit") # We will use this package to plot Person Response Functions
-# By specify the respID argument, we can achieve any test taker's PRF plot.
-# PRFplot(Di_Rasch_data,respID=148)
+# Collect the residual values from the Itemfit results
+stresid <- Di_itemfit$st.res
+# before constructing the plots, find the max & min residuals:
+max.resid <- ceiling(max(stresid))
+min.resid <- ceiling(min(stresid))
+# The code below will produce standardized residual plots for each of the items in our example dataset in the “Plots” window on the bottom right of your R Studio window:
+for(item.number in 1:ncol(stresid)){
+  
+  plot(stresid[, item.number], ylim = c(min.resid, max.resid),
+       main = paste("Standardized Residuals for Item ", item.number, sep = ""),
+       ylab = "Standardized Residual", xlab = "Person Index")
+  abline(h = 0, col = "blue")
+  abline(h=2, lty = 2, col = "red")
+  abline(h=-2, lty = 2, col = "red")
+  
+  legend("topright", c("Std. Residual", "Observed = Expected", "+/- 2 SD"), pch = c(1, NA, NA), 
+         lty = c(NA, 1, 2),
+         col = c("black", "blue", "red"), cex = .8)
+  
+}
+
 ```
 
+Then, we are going to plot the item characteristic curves (item response functions; IRFs) with the observed responses overlaid on them. These are sometimes called empirical IRFs.
 
+```{r}
+for(item.number in 1:ncol(stresid)){
+  plotICC(Di_Rasch_model, item.subset = item.number, empICC = list("raw"), empCI = list())
+}
+```
 
 
 ## Supplmentary Learning Materials

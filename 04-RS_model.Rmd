@@ -1,0 +1,101 @@
+# Rating Scale Model {#RS_model}
+
+## Rasch Rating Scale Model
+
+Rasch Rating Scale Model (RSM) is developed by [Andrich(1978)](https://link.springer.com/article/10.1007/BF02293814) for continuous data. It provides estimates of a; *Person locations*, b; *Item Difficulties* and c; *An overall set of thresholds (fixed across items)*.
+
+Rating Scale Model Equation
+
+$$ln\left[\frac{P_{n_i(x=k)}}{P_{n_i(x=k-1)}}\right]=\theta_{n}-\delta_{i}-\tau_{k}$$
+Where $\theta$ is the person's ability, $\delta$ is the item's difficulty, and $\tau$ is the thresholds which are estimated empirically for the whole set of items. The RSM supposed that the **threshold structure** is fixed across items. The relative distance between thresholds is the same across items, but items still have different difficulties. The thresholds just move up or down the logit scale.
+ 
+## R-Lab: Rasch Rating Scale Model with "eRm" package
+
+### Load the packages that required for the Rasch Rating Scale Analysis
+```{r message=FALSE, warning=FALSE}
+library(readr) # For import the data
+library(TAM) # For running the Rating Scale Rasch Model
+library(plyr)
+```
+
+### Information about the data
+We are going to practice run the Rating Scale (RS) model with "TAM" package. Specifically, we will be working with data from a writing assessment in which students received polytomous ratings on essays.
+
+The original data collection design is described by [Braun(1988)](https://onlinelibrary.wiley.com/doi/epdf/10.1002/j.2330-8516.1988.tb00281.x). The original dataset includes ratings for 32 students by 12 raters on three separate essay compositions. For this lab, we will look at the data from Essay 1. For ease of interpretation, the essay ratings from the original dataset have been recoded from nine categories to three categories (1 = low achievement, 2 = middle achievement; 3 = high achievement).
+
+In our analysis, we will treat the 12 raters as 12 polytomous “items” that share the three-category rating scale structure. Raters with high “difficulty” calibrations can be interpreted as severe – these raters assign low scores more often. Raters with low “difficulty” calibrations can be interpreted as lenient – these raters assign high scores more often.
+
+### Get Data Prepared
+we will try running a polytomous Rasch model using some of the example data that is provided with the TAM package.
+
+***Note** If you want to use "eRm" package to run the Rating Scale model, you need to make sure that each item has the same response categories. 
+
+```{r message=FALSE}
+# Load the data
+braun_data <- read_csv("braun data.csv")
+head(braun_data)
+# Overview the data by use summary function
+summary(braun_data)
+# Trim the data because the TAM package only need response matrix.
+rs_data <- braun_data[,-1]
+```
+
+### Run the Rating Scale Model 
+```{r message=FALSE, results='hide'}
+# Before we run the Rating Scale model, we need to trim the data because the R only needs the response matrix to run the analysis.
+# Run the Rating Scale Model
+rs_model <- TAM::tam.mml(rs_data, irtmodel="RSM") 
+```
+
+```{r}
+# Check the model summary
+summary(rs_model)
+```
+
+### Wright Map & Expected Response Curves & Item characteristic curves 
+Wright Map or Variable Map
+```{r}
+# Plot the Variable Map
+IRT.WrightMap(rs_model,show.thr.lab=TRUE)
+```
+
+Expected Response Curves
+```{r}
+# Plot expected response curves
+plot(rs_model,ask=TRUE)
+```
+
+Item characteristic curves (but now as thresholds)
+```{r}
+plot(rs_model, type="items")
+```
+
+### Item estimates and fit Statistics
+```{r}
+# We can use the similar code to achieve the item estimate as what we did for the Dichotomous Analysis
+rs_model$xsi # The first column is the item difficulty. In this case, is the rater's rating severity.
+tam.fit(rs_model) 
+# Note the last two rows also provides you the average fit statistics for category 1 and category 2. For this analysis, we are not focus on these data.
+# We can also check the Rating Scale Thresholds
+rs_threshold <- tam.threshold(rs_model)
+rs_threshold # This provides the detail logit location for each categories for each rater.
+# Dr. Wind: Is the extra category an average line?
+```
+
+### Person estimates and fit Statistics
+```{r}
+# Use the tam.wle function to acheive the person ability
+person_ability <- tam.wle(rs_model)
+# Print out the person ability
+head(person_ability$theta)# Person's fit statistics
+rs_personfit <- tam.personfit(rs_model)
+# Check the first 6 students' person fit statistics
+head(rs_personfit)
+```
+
+## Supplmentary Learning Materials 
+Andrich, D(1978). “A rating formulation for ordered response categories.” Psychometrika,
+43(4), 561–573. doi:10.1007/BF02293814.
+
+
+
