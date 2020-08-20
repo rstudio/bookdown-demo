@@ -15,7 +15,9 @@ Where $\theta$ is the person's ability, $\delta$ is the item's difficulty, and $
 ```{r message=FALSE, warning=FALSE}
 library(readr) # For import the data
 library(TAM) # For running the Rating Scale Rasch Model
-library(plyr)
+library(plyr) # Fot plot the Item characteristic curves
+library(WrightMap)# Fot plot the variable map
+library(eRm) # For another example
 ```
 
 ### Information about the data
@@ -67,7 +69,8 @@ plot(rs_model,ask=TRUE)
 
 Item characteristic curves (but now as thresholds)
 ```{r}
-plot(rs_model, type="items")
+graphics.off() # To fix the graphic error
+plot(rs_model, type="items") # does not work for SW
 ```
 
 ### Item estimates and fit Statistics
@@ -93,9 +96,105 @@ rs_personfit <- tam.personfit(rs_model)
 head(rs_personfit)
 ```
 
+## Another Example with "eRm" package
+
+The "eRm" package also provide the function to run a polytomous Rasch model. In this example, we will use a build-in data set in "eRm" package as an example.
+
+### Load the example data
+
+```{r}
+### Load the example data:
+data("rsmdat")
+# These data include 20 participants’ responses to six items that included four ordered categories (0, 1, 2, and 3).
+summary(rsmdat)
+```
+
+**Important!**
+Note that in the summary of the "rsmdat" object, there are responses in all 4 categories for all items. This means that it is possible to run the Rating Scale model on these item responses. If participants did not use all of the categories on all of the items, then we would need to run the Partial Credit model instead. 
+
+### Run the Rating Scale model on the data 
+
+```{r}
+rs_model <- RSM(rsmdat)
+```
+
+
+### Examine item difficulty and threshold SEs
+
+```{r}
+### Examine item difficulty values:
+item.estimates <- thresholds(rs_model)
+item.estimates
+## Get threshold SEs values:
+item.se <- item.estimates$se.thresh
+item.se
+```
+
+### Examine Person locations (theta) and SEs
+```{r}
+# Standard errors for theta estimates:
+person.locations.estimate <- person.parameter(rs_model)
+summary(person.locations.estimate)
+```
+
+### Exam the item and person fit statistics
+```{r}
+item.fit <- itemfit(person.locations.estimate)
+item.fit
+pfit <- personfit(person.locations.estimate)
+pfit
+```
+
+**Note:** This procedure will give us information about the infit and outfit statistics for each item. Please review our lecture materials for details about the interpretation of these values, noting that we generally expect these statistics to be around 1.00.
+
+### Graphic Information
+
+#### Plot the Person-Item Map
+```{r}
+plotPImap(rs_model, sorted = TRUE)
+```
+
+In this plot, we should consider the degree to which there is evidence of overlap between item and person locations (targeting).
+
+We can also examine the individual items’ ordering on the logit scale with reference to our theory about the expected ordering.
+
+#### Plot the Standardized Residuals
+```{r}
+stresid <- item.fit$st.res
+
+# before constructing the plots, find the max & min residuals:
+max.resid <- ceiling(max(stresid))
+min.resid <- ceiling(min(stresid))
+
+for(item.number in 1:ncol(stresid)){
+  
+  plot(stresid[, item.number], ylim = c(min.resid, max.resid),
+       main = paste("Standardized Residuals for Item ", item.number, sep = ""),
+       ylab = "Standardized Residual", xlab = "Person Index")
+  abline(h = 0, col = "blue")
+  abline(h=2, lty = 2, col = "red")
+  abline(h=-2, lty = 2, col = "red")
+  
+  legend("topright", c("Std. Residual", "Observed = Expected", "+/- 2 SD"), pch = c(1, NA, NA), 
+         lty = c(NA, 1, 2),
+         col = c("black", "blue", "red"), cex = .8)
+  
+}
+
+```
+
+#### Plot the empirical IRFs
+```{r}
+for(item.number in 1:ncol(stresid)){
+  plotICC(rs_model, item.subset = item.number, empICC = list("raw"), empCI = list())
+}
+```
+
+
 ## Supplmentary Learning Materials 
 Andrich, D(1978). “A rating formulation for ordered response categories.” Psychometrika,
 43(4), 561–573. doi:10.1007/BF02293814.
 
+Mair, P., Hatzinger, R., & Maier M. J. (2020). eRm: Extended Rasch Modeling. 1.0-1.   https://cran.r-project.org/package=eRm
 
 
