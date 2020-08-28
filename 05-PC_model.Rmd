@@ -1,2 +1,128 @@
 # Partial Credit Model {#PC_model}
 
+## Partial Credit Model 
+
+### Recall: Rating Scale Model Key Features
+
+- Same rating scale category structure across items
+
+- Same Distance between categories on the logit scale
+
+- Same number of categories across items
+
+- Thresholds can be disordered
+
+### Motivation for the Partial Credit (PC) Model
+
+- Some measurement contexts require multiple scale lengths
+
+- Sometimes categories are not observed for certain items (or used by individual raters)
+
+- Facilitates the empirical investigation of a common rating scale structure across items
+
+### Partial Credit Model Formula
+
+The Partial Credit Model [Masters, 1982](https://link.springer.com/article/10.1007/BF02296272#citeas) is generalization of the dichotomous Rasch Model. It provides estimates of Person locations, Item difficulties, and Thresholds specific to each item.
+
+Partial Credit Model Equation
+
+$$ln\left[\frac{P_{n_i(xi=k)}}{P_{n_i(xi=k-1)}}\right]=\theta_{n}-\delta_{i}-\tau_{ik}$$
+On the above equation, Thresholds($τ_{k}$) are estimated empirically. They are not necessarily evenly spaced. Threshold structure varies across items. The relative distance between thresholds is estimated separately for each item.
+
+## R-Lab: Rasch Partial Credit Model with "eRm" package
+For the Partial Credit Model, we will continue to work with the subset of the Braun (1988) essay data that we explored in the last Chapter. In this case, we will use "eRm" package.
+
+### Prepare the R package & the data
+```{r}
+library(readr) # For import the data
+library(eRm) # For running the Partial Credit Model
+library(plyr) # For plot the Item characteristic curves
+library(WrightMap)# For plot the variable map
+```
+
+> Data Information
+
+- The original data collection design is described by Braun (1988). The original dataset includes ratings for 32 students by 12 raters on three separate essay compositions. For this lab, we will look at the data from Essay 1. For ease of interpretation, the essay ratings from the original dataset have been recoded from nine categories to three categories (0 = low achievement, 1 = middle achievement; 2 = high achievement).
+
+- In our analysis, we will treat the 12 raters as 12 polytomous “items” that share the three-category rating scale structure.
+
+- Raters with high “difficulty” calibrations can be interpreted as severe – these raters assign low scores more often. Raters with low “difficulty” calibrations can be interpreted as lenient – these raters assign high scores more often.
+
+
+```{r message=FALSE}
+# Load the data
+braun_data <- read_csv("braun data.csv")
+head(braun_data)
+# Overview the data by use summary function
+summary(braun_data)
+# Trim the data, we only need response matrix.
+PC_data <- braun_data[,-1]
+PC_data_balanced <- PC_data-1
+```
+
+### R-Lab: Partial Credit Model with "eRm" package
+
+```{r}
+# Run the Partial Credit Model
+PC_model <- PCM(PC_data_balanced)
+# Check the result
+summary(PC_model)
+```
+
+### Wright Map & Expected Response Curves & Item characteristic curves 
+Wright Map or Variable Map
+```{r}
+# Plot the Variable Map
+plotPImap(PC_model)
+# Plot the Wright Map
+plotPWmap(PC_model)
+```
+
+Item characteristic curves (but now as thresholds)
+```{r}
+plotICC(PC_model)
+```
+
+### Examine item difficulty and threshold SEs
+
+```{r}
+### Examine item difficulty values:
+item.estimates <- thresholds(PC_model)
+item.estimates
+## Get threshold SEs values:
+item.se <- item.estimates$se.thresh
+item.se
+```
+
+### Examine Person locations (theta) and SEs
+```{r}
+# Standard errors for theta estimates:
+person.locations.estimate <- person.parameter(PC_model)
+summary(person.locations.estimate)
+```
+### Exam the item and person fit statistics
+```{r}
+item.fit <- itemfit(person.locations.estimate)
+item.fit
+pfit <- personfit(person.locations.estimate)
+pfit
+```
+
+### Exercise
+Can you plot the Standardized Residuals for our PC model? 
+(Tips: You can use the R code from previous chapter, they're the same)
+
+## Supplmentary Learning Materials 
+
+[Braun, H. I. (1988). Understanding Scoring Reliability: Experiments in Calibrating Essay Readers. Journal of Educational and Behavioral Statistics, 13(1), 1–18.](http://doi.org/10.3102/10769986013001001) 
+
+[Masters, G.N. A rasch model for partial credit scoring. Psychometrika 47, 149–174 (1982). https://doi.org/10.1007/BF02296272](https://link.springer.com/article/10.1007/BF02296272#citeas)
+
+
+
+
+
+
+
+
+

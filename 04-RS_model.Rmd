@@ -15,8 +15,8 @@ Where $\theta$ is the person's ability, $\delta$ is the item's difficulty, and $
 ```{r message=FALSE, warning=FALSE}
 library(readr) # For import the data
 library(TAM) # For running the Rating Scale Rasch Model
-library(plyr) # Fot plot the Item characteristic curves
-library(WrightMap)# Fot plot the variable map
+library(plyr) # For plot the Item characteristic curves
+library(WrightMap)# For plot the variable map
 library(eRm) # For another example
 ```
 
@@ -63,7 +63,7 @@ IRT.WrightMap(rs_model,show.thr.lab=TRUE)
 
 Expected Response Curves
 ```{r}
-# Plot expected response curves
+# Plot expected response curves 
 plot(rs_model,ask=TRUE)
 ```
 

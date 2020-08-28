@@ -238,3 +238,4 @@ for(item.number in 1:ncol(stresid)){
 
 2. [Wright, B.D., & Masters, G.N. (1990). Computation of OUTFIT and INFIT Statistics. *Rasch Measurement Transactions,3(4)* p.84-85.](https://www.rasch.org/rmt/rmt34e.htm)
 
+3. [Estimation methods: JMLE, PROX, WMLE, CMLE](https://www.winsteps.com/winman/estimation.htm)
