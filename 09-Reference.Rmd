@@ -29,9 +29,11 @@
 | CML(E) | Conditional Maximum Likelihood (Estimation) | 
 | EAP | Expected A Posterior (Estimate) | 
 | JML(E) | Joint Maximum Likelihood (Estimation) | 
-| MML(E) | Marginal Maximum Likelihood (Estimation) |
 | UCON(E) | Unconditional Maximum Likelihood (Estimation) | 
+| MML(E) | Marginal Maximum Likelihood (Estimation) |
 | WLE | Weighted Likelihood Estimate | 
+
+**Note***: JMLE "Joint Maximum Likelihood Estimation" is also called UCON, "Unconditional maximum likelihood estimation". It was devised by [Wright & Panchapakesan](https://www.rasch.org/memo46.htm).
 
 ### Useful Rasch Software & R-Packages
 
