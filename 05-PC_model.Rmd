@@ -27,14 +27,14 @@ The Partial Credit Model [Masters, 1982](https://link.springer.com/article/10.10
 Partial Credit Model Equation
 
 $$ln\left[\frac{P_{n_i(xi=k)}}{P_{n_i(xi=k-1)}}\right]=\theta_{n}-\delta_{i}-\tau_{ik}$$
-On the above equation, Thresholds($τ_{k}$) are estimated empirically. They are not necessarily evenly spaced. Threshold structure varies across items. The relative distance between thresholds is estimated separately for each item.
+In the PC model, Thresholds($τ_{k}$) are estimated empirically for each element of one facet, such as items. They are not necessarily evenly spaced or ordered as expected. In contrast to the RS model, the location and relative distance between thresholds is estimated separately for each item.
 
 ## R-Lab: Rasch Partial Credit Model with "eRm" package
 For the Partial Credit Model, we will continue to work with the subset of the Braun (1988) essay data that we explored in the last Chapter. In this case, we will use "eRm" package.
 
 ### Prepare the R package & the data
 ```{r}
-library(readr) # For import the data
+library(readr) # To import the data
 library(eRm) # For running the Partial Credit Model
 library(plyr) # For plot the Item characteristic curves
 library(WrightMap)# For plot the variable map
@@ -53,10 +53,11 @@ library(WrightMap)# For plot the variable map
 # Load the data
 braun_data <- read_csv("braun data.csv")
 head(braun_data)
-# Overview the data by use summary function
+# Preview the data using the summary function
 summary(braun_data)
-# Trim the data, we only need response matrix.
+# Trim the data because we only need the response matrix.
 PC_data <- braun_data[,-1]
+# Subtract 1 from observations so that the lowest category is 0 (required for eRm)
 PC_data_balanced <- PC_data-1
 ```
 
@@ -74,13 +75,13 @@ Wright Map or Variable Map
 ```{r}
 # Plot the Variable Map
 plotPImap(PC_model)
-# Plot the Wright Map
-plotPWmap(PC_model)
+# Plot the Wright Map 
+plotPWmap(PC_model) ## Cheng - note that this one shows fit, not locations. I wouldn't call it a Wright map even if that's what eRm calls it.
 ```
 
-Item characteristic curves (but now as thresholds)
+Item characteristic curves
 ```{r}
-plotICC(PC_model)
+plotICC(PC_model, ask = FALSE)
 ```
 
 ### Examine item difficulty and threshold SEs
