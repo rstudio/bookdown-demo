@@ -7,16 +7,16 @@
     -Emily Dickinson 
     -----------------------------------------------------------  
     The human brain has 100 billion neurons, each neuron 
-    connect to ten thousands other neurons. 
+    connects to ten thousands other neurons. 
     Sitting on your shoulders is the most complicated object 
     in the known universe.
     -Michio Kaku
 
-Cognitive neuroscientists have the privilege to study the most complex organ known in nature. The hardship in understanding the brain is quite likely as great as its complexity. Cognitive neurosciences do not just rely on common intuition (often misconstrued) but on hard thought and tested theories and frameworks. Some perished, some survive, and all benefit from a highest standard of scientific methods and integrity. Because good science is hard, it can feel personal at times due to how much investment you have to put in, but it is important to remain humble and realize that if  scientists are after not just reality but truth itself, such endeavor necessarily stands far beyond personal achievements and egoes. 
+Cognitive neuroscientists have the privilege to study the most complex organ known in nature. The hardship in understanding the brain is quite likely as great as its complexity. Cognitive neurosciences do not just rely on common intuition (often misconstrued) but on hard thought and empirically tested theories and frameworks. Some perished, some survive, and all benefit from a highest standard of scientific methods and integrity. Because good science is hard, it can feel personal at times due to how much investment you have to put in, but it is important to remain humble and realize that if scientists are after not just reality but truth itself, such endeavor necessarily stands far beyond personal achievements and egoes. 
 
 **Scientific vision**
 
-To gain deeper mechanistic insights on how the human mind conceives time the way it does. The dynamic scales at which neural computations operate can be conceived as a chronoarchitecture. The notion of chronoarchitecture emphasizes that dynamic properties of neural activity do not solely reflect adaptive changes, but also dynamic constraints, that provide stability for a thinking and feeling mind to emerge.
+The lab thrives to gain deeper mechanistic insights on how the human mind conceives time the way it does. The dynamic scales at which neural computations operate can be conceived as a chronoarchitecture. The notion of chronoarchitecture emphasizes that dynamic properties of neural activity do not solely reflect adaptive changes, but also dynamic constraints, that provide stability for a thinking and feeling mind to emerge.
 
 Our theoretical and empirical approach considers both endogenous (oscillatory regimes, prediction, culture) and exogenous (temporal statistics of sensory inputs, body movements) factors to be essential for temporal cognition. 
 
@@ -32,20 +32,21 @@ We try to foster collaborative opportunities that can be fundamental, multidisci
     -Antonio Damasio**
 
 
-Collegiality: we strive to make the lab a give-give place in which we all learn from each other, irrespective of experience level. Science is hard enough, foster being constructive and collaborative, not destructive and competitive!
+**Collegiality:** we strive to make the lab a give-give place in which we all learn from each other, irrespective of experience level. Science is hard enough, foster being constructive and collaborative, not destructive and competitive!
 
-Integrity: everyone must follow strict institutional, scientific, and ethical guidelines. No exception, no discussion. 
+**Integrity:** everyone must follow strict institutional, scientific, and ethical guidelines. No exception, no discussion. 
 
-Excellence: we strive for the highest quality of scientific research from the theoretical formulation of a question to the minute experimental details.
+**Excellence:** we strive for the highest quality of scientific research from the theoretical formulation of a question to the minute experimental details.
 
-Creativity: 
+**Creativity:** 
 
-Perseverance: finish whatever you started, whether it leads to failed experiment or to a new discovery. You need an end to begin again.
+**Perseverance:** finish whatever you started, whether it leads to failed experiment or to a new discovery. You need an end to begin again.
 
 **Scientific Integrity**
-
-Replicability, ....
+We strive to improve our scientific methods and practice every day. 
+We ask you to do your best to prevent errors, double check your code and results, avoid common statistical fallacies, and take responsibility for your work. 
+Please check the page dedicated to Good scientific practice for more details.  
 
 **Open Science**
-
+# XXX 
 Open science comes with goods and bads. The goods is collaborative, the bads is that in an ever increasing competitive access to funds and support, it makes it easy for your competition.

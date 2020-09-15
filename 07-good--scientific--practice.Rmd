@@ -1,0 +1,33 @@
+# Good scientific practice
+
+**Scientific integrity** 
+We strive to improve our scientific methods and practice every day and never stop learning. 
+
+We ask you to do your best to prevent errors, double check your code and results, avoid common statistical fallacies, and take responsibility for your work. 
+
+Check your experimental protocols: timing or randomization errors cannot be corrected once the data is recorded, and might result in a huge waste of your time and the team’s money (an MEG experiment costs between 20.000-30.000€). This includes making sure the experiment runs without errors and checking the output of 1–2 pilot participants for timing, randomization, and task-related aspects. 
+
+Write clean and commented analysis code, check it for errors, and include sanity checks in your analysis. Think carefully about your choices of analysis parameters and test several options. 
+
+We strive to produce objective and reproducible results. Be aware of biases and common statistical fallacies like p-hacking (selecting one significant result out of many), confirmation and publication bias, selective exclusion of participants and many others. Report results as they are, including null-findings. If we always knew the results of our experiments, there would be no point in doing them. 
+
+Errors happen. To all of us, over and over again. The first step is of course to try and prevent them, but when you come across one, act on it: check its impact, make sure appropriate corrections are applied, and report it to the collaborators.  
+
+**Documentation**
+
+
+**Intellectual ownership and representation of the team**
+Always acknowledge everyone who contributed to your work (including supervisors, engineers, post docs) on slides and reports. 
+
+Anything that leaves the lab (written reports, presentations, abstracts, papers) needs to be shown to the supervisors and co-authors before, at least 3 working days (for slides and abstracts) and 5 working days (for reports) before the deadline. Large projects like papers and PhD theses need to be discussed and revised several times before submission. The earlier you send your work, the better the feedback you will get. 
+
+Cite all references you used and never copy sentences or passages from other people’s work. Plagiarism will be sanctioned by your committee (worsen your grade up to leading to rejection of your work in bad cases) and the scientific community (rejection of your work, legal consequences in very bad cases). 
+
+**Open Science**
+
+
+**Links and References**
+
+<https://elifesciences.org/articles/45261>
+<https://gate.nmr.mgh.harvard.edu/wiki/whynhow/images/e/ef/Vul_et_al_orig_paper.pdf>
+<https://www.nature.com/articles/nrn3475>

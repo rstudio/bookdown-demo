@@ -1,4 +1,9 @@
-## Welcome to the Cognition & Brain Dynamics lab! 
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Welcome to the Cognition & Brain Dynamics lab! 
 
 If you are reading this lab manual, you have likely just joined us recently so welcome! 
 
@@ -20,9 +25,19 @@ Joining a research team means contributing your critical thinking, your skills, 
 Every lab member plays a vital role in the functioning from undergraduate students to early career researchers, support staff, and principal investigators (PIs)!
 
 Providing you with rules and procedures is to ensure that current efforts reset on past success and failures and pushes as
-far as possible in better directions. Novel arrivals should need to re-invent anything, you should not be starting
-your experiments from scratch, but build on what previous  researchers have already built.
+far as possible in better directions. Novel arrivals should not need to re-invent anything, you should not be starting your experiments from scratch, but build on what previous researchers have already achieved.
 
 
 **Who's who **
 
+**Permanent lab members:** 
+
+**Virginie van Wassenhove, Principal investigator** Research director (equivalent DR), CEA
+
+**Sophie Herbst, Junior PI** researcher (equivalent CR), CEA
+
+**Leila Azizi, Research Engineer**, Inserm
+
+Please check the lab's website for an up-to-date list of lab members:
+https://brainthemind.com/team/
+Should you not find yourself there or want to update your profile, please send a textsnippet/ photo to the PIs. 
