@@ -1,0 +1,409 @@
+\documentclass[]{book}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={A Minimal Book Example},
+            pdfauthor={Yihui Xie},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{A Minimal Book Example}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Yihui Xie}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2020-02-05}
+
+\usepackage{booktabs}
+\usepackage{amsthm}
+\makeatletter
+\def\thm@space@setup{%
+  \thm@preskip=8pt plus 2pt minus 4pt
+  \thm@postskip=\thm@preskip
+}
+\makeatother
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{1}
+\tableofcontents
+}
+\hypertarget{prerequisites}{%
+\chapter{Prerequisites}\label{prerequisites}}
+
+This is a \emph{sample} book written in \textbf{Markdown}. You can use anything that Pandoc's Markdown supports, e.g., a math equation \(a^2 + b^2 = c^2\).
+
+The \textbf{bookdown} package can be installed from CRAN or Github:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"bookdown"}\NormalTok{)}
+\CommentTok{# or the development version}
+\CommentTok{# devtools::install_github("rstudio/bookdown")}
+\end{Highlighting}
+\end{Shaded}
+
+Remember each Rmd file contains one and only one chapter, and a chapter is defined by the first-level heading \texttt{\#}.
+
+To compile this example to PDF, you need XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): \url{https://yihui.name/tinytex/}.
+
+\hypertarget{welcome}{%
+\chapter{Welcome!}\label{welcome}}
+
+Welcome to Cognition \& Brain Dynamics!
+
+If you are reading this lab manual, you have likely just joined us recently so welcome!
+
+If you are a current member, please, frequently refer to it for updated contents.
+If you have suggestions to make for improvement or new stuff, please let the PIs know or bring it up during our next meeting!
+
+v.0.01: January 2020
+Repository: \url{https://github.com/brainthemind/CBD-Lab-Manual}
+
+Demo:
+To edit and update, we use:
+\textbf{R} (R Core Team 2017)
+\textbf{bookdown} package \citep{R-bookdown}
+\textbf{knitr} \citep{xie2015}.
+
+\hypertarget{preamble}{%
+\chapter{Preamble}\label{preamble}}
+
+\begin{verbatim}
+The Brain - is wider than the Sky -
+For - put them side by side -
+The one the other will contain
+With ease - and You - beside -
+-Emily Dickinson 
+-----------------------------------------------------------  
+The human brain has 100 billion neurons, each neuron 
+connect to ten thousands other neurons. 
+Sitting on your shoulders is the most complicated object 
+in the known universe.
+-Michio Kaku
+\end{verbatim}
+
+Cognitive neuroscientists have the privilege to study the most complex organ known in nature. The hardship in understanding the brain is quite likely as great as its complexity. Cognitive neurosciences do not just rely on common intuition (often misconstrued) but on hard thought and tested theories and frameworks. Some perished, some survive, and all benefit from a highest standard of scientific methods and integrity. Because good science is hard, it can feel personal at times due to how much investment you have to put in, but it is important to remain humble and realize that if scientists are after not just reality but truth itself, such endeavor necessarily stands far beyond personal achievements and egoes.
+
+\textbf{Scientific vision}
+
+To gain deeper mechanistic insights on how the human mind conceives time the way it does. The dynamic scales at which neural computations operate can be conceived as a chronoarchitecture. The notion of chronoarchitecture emphasizes that dynamic properties of neural activity do not solely reflect adaptive changes, but also dynamic constraints, that provide stability for a thinking and feeling mind to emerge.
+
+Our theoretical and empirical approach considers both endogenous (oscillatory regimes, prediction, culture) and exogenous (temporal statistics of sensory inputs, body movements) factors to be essential for temporal cognition.
+
+Our scientific work uses tools from traditional experimental psychology (psychophysics, questionnaires) combined with state-of-the-art neuroimaging techniques (MEG, EEG, fMRI), signal processing methods (spectral and time-frequency analyses, source estimation, cross-frequency coupling, functional connectivity) and model-based neuroimaging (mTRF, decoding).
+
+We try to foster collaborative opportunities that can be fundamental, multidisciplinary, or applied.
+
+\textbf{Core Values}
+
+\begin{verbatim}
+We are not thinking machines that feel; 
+rather, we are feeling machines that think
+-Antonio Damasio**
+\end{verbatim}
+
+Collegiality: we strive to make the lab a give-give place in which we all learn from each other, irrespective of experience level. Science is hard enough, foster being constructive and collaborative, not destructive and competitive!
+
+Integrity: everyone must follow strict institutional, scientific, and ethical guidelines. No exception, no discussion.
+
+Excellence: we strive for the highest quality of scientific research from the theoretical formulation of a question to the minute experimental details.
+
+Creativity:
+
+Perseverance: finish whatever you started, whether it leads to failed experiment or to a new discovery. You need an end to begin again.
+
+\textbf{Scientific Integrity}
+
+Replicability, \ldots{}.
+
+\textbf{Open Science}
+
+Open science comes with goods and bads. The goods is collaborative, the bads is that in an ever increasing competitive access to funds and support, it makes it easy for your competition.
+
+\hypertarget{getting-started}{%
+\chapter{Getting Started}\label{getting-started}}
+
+\textbf{Who we are}
+
+Our official affiliation is:
+Cognitive Neuroimaging Unit, CEA, INSERM, Université Paris-Saclay, NeuroSpin center, 91191 Gif/Yvette, France
+
+What it means:
+The Cognitive Neuroimaging Unit (UNICOG) is a research unit which is part of two major institutions: the ``Institut National de la Santé et de la Recherche Médicale'' (INSERM for short) and the ``Comissariat à l'Energie Atomique et aux Energies Alternatives'' (CEA for short).
+UNICOG is hosted by NeuroSpin, which refers to the physical building located at Gif s/ Yvette were our lab is. UNICOG is also affiliated to the Université Paris-Saclay.
+
+The director of NeuroSpin and of UNICOG is Prof Stanislas Dehaene (College de France).
+
+The Cognition \& Brain Dynamics lab is one of the five labs within UNICOG.
+
+For general administrative guidance and human resources help, please be in touch with Vanna Santoro (\href{mailto:giovanna.santoro@cea.fr}{\nolinkurl{giovanna.santoro@cea.fr}}).
+
+The contact information of everyone at NeuroSpin can be found here: \url{http://www.neurospin-wiki.org/pmwiki/Main/PhoneNumbers}
+
+\textbf{Resources}
+
+NeuroSpin is a neuroimaging center with great tools on site, and lots of technical and methodological knowledge available. NeuroSpin has a wiki where you can find a lot of information.{[}\url{http://www.neurospin-wiki.org/pmwiki/}{]}
+
+Please check it often as it can answer many questions you may have from how to pay for a conference to who is in charge of the IT, how to use trigger with MEG or how to analyze DTI. Also, please update information if it is outdated to keep it alive!
+
+Cognition \& Brain Dyanmics has a website {[}\url{http://brainthemind.com/}{]} on which we would like each member to be listed. Please, send us a short snippet describing your interests and prior work, plus a picture (square format with good resolution) so we can add you.
+
+\textbf{Happenings \& Calendars}
+
+NEUROSPIN meetings are weekly, Monday 11 am, amhphitheatre Bloch.
+NeuroSpin calendar {[}\url{https://calendar.google.com/calendar/embed?src=9mar0ri28bi85c2p4gef6dh108@group.calendar.google.com\&ctz=Europe/Paris}{]}
+
+UNICOG meetings are weekly, Friday 3pm, room 183. This is the place to exchange with other members of the lab. We highly encourage your presence and active participation. You will be asked to present your project there, too.
+UNICOG calendar {[}\url{https://calendar.google.com/calendar/embed?src=unicog.meetings@gmail.com\&ctz=Europe/Paris\&mode=AGENDA}{]}
+
+Cognition \& Brain Dynamics meeting are weekly, Tue 1:30 pm, room 2033 (Claude Bernard)
+Brainthemind calendar{[}\url{https://calendar.google.com/calendar?cid=bzkwaWRmZWtidWdsbmJkNm1lNm51MjExanNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ}{]}
+Every member of the team presents their project at different stages. We also do journal clubs and round tables to which everyone contributes by preparing a slide. Take the team meeting as an opportunity to ask questions, express doubts, learn from feedback and interact on deep questions to prepare you for presenting your work to the outside world.
+The current organizers form the ``WHY'' team aka. William, Harish \& Yvan!
+
+\textbf{Access to Journals}
+
+Please ask Vanna(\href{mailto:giovanna.santoro@cea.fr}{\nolinkurl{giovanna.santoro@cea.fr}}) for this information or refer here;:
+
+\textbf{Tools}
+
+\emph{To communicate}:
+Slack {[}Cognition \& Brain Dynamics{]}
+Google Hangout
+Zoom
+Weebly
+Skype Business
+
+\emph{To coordinate}:
+Google Drive
+Dropbox
+
+\emph{To open science}:
+\url{https://github.com/brainthemind}
+\url{https://osf.io/}
+twitter
+
+\textbf{Acknowledgements}
+
+This work was funded by grant XXX to VvW and YYY to SH.
+
+UNIACT
+
+This work was performed on a platform of France Life Imaging network partly funded by the grant ``ANR-11-INBS-0006'' or ``Partly supported by FLI (ANR-11-INBS-0006)''.
+
+``This work has received funding support from the ERPT equipment program of the Leducq Foundation.''
+
+\textbf{Library}
+
+We have books onsite and also in electronic format in our shared drive.
+If you think that we need a book, please bring it up during our lab meeting.
+
+\hypertarget{expectations}{%
+\chapter{Expectations}\label{expectations}}
+
+Generally, we expect every member of the team, no matter the level of training or duration of stay in the lab to respect the following guidelines:
+
+\textbf{Team culture}
+
+We work in a collegial, collaborative, and friendly atmosphere.
+
+Asking others for support, providing support, caring about our colleagues' matters, and behaving respectfully to everyone within and around the team at any time is key. Every team member, no matter the level of expertise is encouraged to speak up, ask questions, interact and contribute to the life of the team.
+
+Diversity and multiculturality are pillars of science. They are indispensable for the healthy functioning of any team. We are aware that we live in a world that is far from being free of discrimination, but we actively work towards awareness to, and elimination of, sexism, racism, or any other aspect of discrimination in our interactions.
+
+If there are any personal or inter-personal issues in the team, please speak to us about it. You can also approach Vanna (\href{mailto:giovanna.santoro@cea.fr}{\nolinkurl{giovanna.santoro@cea.fr}}) to discuss any problem, and Isabelle Denghien (\href{mailto:isabelle.denghien@cea.fr}{\nolinkurl{isabelle.denghien@cea.fr}}), who is the official referent person for personal safety including issues related to harassment.
+
+You are here to join us in every aspect of the exciting endeavour to better understand the human brain and mind! We foster curiosity, enthusiasm, questioning, motivation, reading as much as one can, telling each other where we may be wrong, and learning what we do not know. Science thrives on lively discussions that constantly evolve, new insights, and constant adjustments in our thinking.
+
+The more every team member contributes to the discussions (for instance in the team meeting), the better weall become!
+
+\textbf{Scientific integrity}
+
+We strive to improve our scientific methods and practice every day.
+
+We ask you to do your best to prevent errors, double check your code and results, make sanity cheks a rule, avoid common statistical fallacies, and take responsibility for your work.
+
+Checking your experimental protocols: timing or randomization errors cannot be corrected once the data has been recorded, and such error can result in a huge waste of your time and of the team's money (an MEG experiment costs \textasciitilde{} 30.000€). Hence, prior to conducting your experiment, make sure the code runs without errors, obsessively check the outputs of 1 or 2 pilot participants for timing, randomization, and task-related aspects.
+
+Write clean and commented analysis code, check for errors, and include sanity checks in your analysis. Think carefully about your choices of analysis parameters and test several options.
+
+We strive to produce objective and reproducible results. Be aware of biases and common statistical fallacies like p-hacking (selecting one significant result out of many), confirmation and publication bias, selective exclusion of participants and many others. Report results as they are, including null-findings. If we always knew the results of our experiments, there would be no point in doing them.
+
+Errors happen. To all of us, over and over again. The first step is of course to try and prevent them, but when you come across one, act on it: check its impact, make sure appropriate corrections are applied, and report it to your collaborators as soon as you can.
+
+\emph{Intellectual ownership and representation of the team}
+
+Always acknowledge everyone who contributed to your work (including supervisors, engineers, post docs) on slides and reports.
+
+Anything that leaves the lab (written reports, presentations, abstracts) has to be shown to the supervisors and co-authors before, at least 7 working days before the deadline. Large projects like papers and PhD theses need to be discussed and revised several times before submission. The earlier you send your work, the better the feedback you will get.
+
+Cite all references you used and never copy sentences or passages from other people's work. Plagiarism will be sanctioned by your committee (worsen your grade up to leading to rejection of your work in bad cases) and the scientific community (rejection of your work with legal consequences in very bad cases). Plagiarism and intellectual dishonesty are a sure way to loose the trust and respect of your colleagues.
+
+\textbf{Different stages of expertise}
+
+To all students:
+All requirements of your university program (deadlines, requirements) are fully your own responsibility.
+All written work (including slides) need to be shown to the supervisors with sufficient time to apply corrections.
+
+\emph{Master 1 students}
+
+This is likely your first hands-on encounter with the scientific method. You will go through all stages of a project, and take more autonomy throughout the process.
+
+You will test participants, analyze the data, interpret and present the results.
+We encourage you to take over all those aspects as early as possible.
+We expect you to master the related literature and contribute to the improvement of the experimental design.
+We do not expect you to be fluent in programming, but you will have to learn to understand and modify code, and eventually write your own. You are in charge of documenting your work.
+
+\emph{Master 2 students}
+
+You will conduct all stages of the project, including narrowing down the question, preparing the experimental protocol, data acquisition and analysis.
+Depending on the project, this might include several behavioral pilot experiments and/or data acquisition and/or analysis .
+
+The direction of your work will pre-defined by your advisors, but you are expected to contribute also to the theoretical aspects and implementation.
+We expect you to take over responsibility for your study as early as possible.
+We expect you to master the literature in which your project is embedded, be the expert concerning all technical details, test participants, analyze the data, and interpret and present the results.
+We do not expect you to be fully fluent in programming, but you will have to learn efficiently to eventually write your own.
+You are in charge of documenting your work.
+
+\emph{PhD students}
+
+You will conduct all stages of the project, including narrowing down the initial question and building up on it, preparing the experimental protocols, data acquisitions and analyses. Hence, as a PhD student, you become the major driving force of the scientific work, which means you are responsible for the mastery of the literature, all technical details of your studies, the testing of participants, the analysis of the data, their interpretation etc\ldots{}
+
+The direction of your work will be initially construed with your advisors, but you are progressively expected to raise to intellectual autonomy, both theoretically and empirically! In fact, you should become the best expert in the team on your own topic. If all goes well, you will get to start working in collaboration with the master students and start learning how to transmit the how tos, work solo but also in a team.
+
+You are in charge of documenting your work.
+
+\emph{What you can expect from us}
+
+You can expect from us:
+- guidance at all stages of your prohect: from theinitial question, to the paradigmatic approach, the relevant literature, etc
+- help you reach a reasonable working example code and help with debugging, provide analysis feedback
+- discussions, brainstorming, and interpretations of your results
+- feedback on your presentations (slides and report)
+- weekly one-to-one meeting (more if needed, less if needed)
+- weekly group meeting to gather more feedback
+
+\hypertarget{final-words}{%
+\chapter{Final Words}\label{final-words}}
+
+We have finished a nice book.
+
+\bibliography{book.bib,packages.bib}
+
+
+\end{document}

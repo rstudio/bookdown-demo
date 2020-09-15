@@ -31,6 +31,7 @@ We strive to produce objective and reproducible results. Be aware of biases and 
 
 Errors happen. To all of us, over and over again. The first step is of course to try and prevent them, but when you come across one, act on it: check its impact, make sure appropriate corrections are applied, and report it to your collaborators as soon as you can.  
 
+
 *Intellectual ownership and representation of the team*
 
 Always acknowledge everyone who contributed to your work (including supervisors, engineers, post docs) on slides and reports. 
