@@ -1,3 +1,77 @@
-# Methods
+# Getting Started
 
-We describe our methods in this chapter.
+**Who we are**
+
+Our official affiliation is: 
+Cognitive Neuroimaging Unit, CEA, INSERM, Université Paris-Saclay, NeuroSpin center, 91191 Gif/Yvette, France
+
+What it means: 
+The Cognitive Neuroimaging Unit (UNICOG) is a research unit which  is part of two major institutions: the "Institut National de la Santé et de la Recherche Médicale" (INSERM for short) and the "Comissariat à l'Energie Atomique et aux Energies Alternatives" (CEA for short). 
+UNICOG is hosted by NeuroSpin, which refers to the physical building located at Gif s/ Yvette were our lab is. UNICOG is also affiliated to the Université Paris-Saclay.
+
+The director of NeuroSpin and of UNICOG is Prof Stanislas Dehaene (College de France). 
+
+The Cognition & Brain Dynamics lab is one of the five labs within UNICOG. 
+
+For general administrative guidance and human resources help, please be in touch with Vanna Santoro (giovanna.santoro@cea.fr). 
+
+The contact information of everyone at NeuroSpin can be found here: http://www.neurospin-wiki.org/pmwiki/Main/PhoneNumbers
+
+**Resources**
+
+NeuroSpin is a neuroimaging center with great tools on site, and lots of technical and methodological knowledge available. NeuroSpin has a wiki where you can find a lot of information.[http://www.neurospin-wiki.org/pmwiki/]
+
+Please check it often as it can answer many  questions you may have from how to pay for a conference to who is in charge of the IT, how to use trigger with MEG or how to analyze DTI. Also, please update information if it is outdated to keep it alive!
+
+Cognition & Brain Dyanmics has a website [http://brainthemind.com/] on which we would like each member to be listed. Please, send us a short snippet describing your interests and prior work, plus a picture (square format with good resolution) so we can add you.
+
+**Happenings & Calendars**
+
+NEUROSPIN meetings are weekly, Monday 11 am, amhphitheatre Bloch. 
+NeuroSpin calendar [https://calendar.google.com/calendar/embed?src=9mar0ri28bi85c2p4gef6dh108@group.calendar.google.com&ctz=Europe/Paris]
+
+UNICOG meetings are weekly, Friday 3pm, room 183. This is the place to exchange with other members of the lab. We highly encourage your presence and active participation. You will be asked to present your project there, too. 
+UNICOG calendar [https://calendar.google.com/calendar/embed?src=unicog.meetings@gmail.com&ctz=Europe/Paris&mode=AGENDA]
+
+Cognition & Brain Dynamics meeting are weekly, Tue 1:30 pm, room 2033 (Claude Bernard) 
+Brainthemind calendar[https://calendar.google.com/calendar?cid=bzkwaWRmZWtidWdsbmJkNm1lNm51MjExanNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ]
+Every member of the team presents their project at different stages. We also do journal clubs and round tables to which everyone contributes by preparing a slide. Take the team meeting as an opportunity to ask questions, express doubts,  learn from feedback and interact on deep questions to prepare you for presenting your work to the outside world. 
+The current organizers form the "WHY" team aka. William, Harish & Yvan!
+
+**Access to Journals**
+
+Please ask Vanna(giovanna.santoro@cea.fr) for this information or refer here;:
+
+**Tools**
+
+*To communicate*: 
+Slack [Cognition & Brain Dynamics]
+Google Hangout
+Zoom 
+Weebly
+Skype Business
+
+*To coordinate*:
+Google Drive 
+Dropbox
+
+*To open science*: 
+https://github.com/brainthemind
+https://osf.io/
+twitter
+
+**Acknowledgements**
+
+This work was funded by grant XXX to VvW and YYY to SH.
+
+UNIACT 
+
+This work was performed on a platform of France Life Imaging network partly funded by the grant “ANR-11-INBS-0006 ” or “Partly supported by FLI (ANR-11-INBS-0006)”.
+ 
+"This work has received funding support from the ERPT equipment program of the Leducq Foundation."
+
+**Library**
+
+We have books onsite and also in electronic format in our shared drive.
+If you think that we need a book, please bring it up during our lab meeting.
+

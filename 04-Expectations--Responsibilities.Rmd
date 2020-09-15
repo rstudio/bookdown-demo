@@ -1,7 +1,90 @@
-# Applications
+# Expectations
 
-Some _significant_ applications are demonstrated in this chapter.
+Generally, we expect every member of the team, no matter the level of training or duration of stay in the lab to respect the following guidelines:
 
-## Example one
+**Team culture**
 
-## Example two
+We work in a collegial, collaborative, and friendly atmosphere. 
+
+Asking others for support, providing support, caring about our colleagues’ matters, and behaving respectfully to everyone within and around the team at any time is key. Every team member, no matter the level of expertise is encouraged to speak up, ask questions, interact and contribute to the life of the team.
+
+Diversity and multiculturality are pillars of science. They are indispensable for the healthy functioning of any team. We are aware that we live in a world that is far from being free of discrimination, but we actively work towards awareness to, and elimination of, sexism, racism, or any other aspect of discrimination in our interactions. 
+
+If there are any personal or inter-personal issues in the team, please speak to us about it. You can also approach Vanna (giovanna.santoro@cea.fr) to discuss any problem, and Isabelle Denghien (isabelle.denghien@cea.fr), who is the official referent person for personal safety including issues related to harassment. 
+
+You are here to join us in every aspect of the exciting endeavour to better understand the human brain and mind! We foster curiosity, enthusiasm, questioning, motivation, reading as much as one can, telling each other where we may be wrong, and learning what we do not know. Science thrives on lively discussions that constantly evolve, new insights, and constant adjustments in our thinking. 
+
+The more every team member contributes to the discussions (for instance in the team meeting), the better weall become! 
+
+
+**Scientific integrity**
+
+We strive to improve our scientific methods and practice every day.
+
+We ask you to do your best to prevent errors, double check your code and results, make sanity cheks a rule, avoid common statistical fallacies, and take responsibility for your work. 
+
+Checking your experimental protocols: timing or randomization errors cannot be corrected once the data has been recorded, and such error can result in a huge waste of your time and of the team’s money (an MEG experiment costs ~ 30.000€). Hence, prior to conducting your experiment, make sure the code runs without errors, obsessively check the outputs of 1 or 2 pilot participants for timing, randomization, and task-related aspects.
+
+Write clean and commented analysis code, check for errors, and include sanity checks in your analysis. Think carefully about your choices of analysis parameters and test several options. 
+
+We strive to produce objective and reproducible results. Be aware of biases and common statistical fallacies like p-hacking (selecting one significant result out of many), confirmation and publication bias, selective exclusion of participants and many others. Report results as they are, including null-findings. If we always knew the results of our experiments, there would be no point in doing them. 
+
+Errors happen. To all of us, over and over again. The first step is of course to try and prevent them, but when you come across one, act on it: check its impact, make sure appropriate corrections are applied, and report it to your collaborators as soon as you can.  
+
+
+*Intellectual ownership and representation of the team*
+
+Always acknowledge everyone who contributed to your work (including supervisors, engineers, post docs) on slides and reports. 
+
+Anything that leaves the lab (written reports, presentations, abstracts) has to be shown to the supervisors and co-authors before, at least 7 working days before the deadline. Large projects like papers and PhD theses need to be discussed and revised several times before submission. The earlier you send your work, the better the feedback you will get.
+
+Cite all references you used and never copy sentences or passages from other people’s work. Plagiarism will be sanctioned by your committee (worsen your grade up to leading to rejection of your work in bad cases) and the scientific community (rejection of your work with legal consequences in very bad cases). Plagiarism and intellectual dishonesty are a sure way to loose the trust and respect of your colleagues.
+
+
+**Different stages of expertise**
+
+To all students: 
+All requirements of your university program (deadlines, requirements) are fully your own responsibility.
+All written work (including slides) need to be shown to the supervisors with sufficient time to apply corrections.
+
+
+*Master 1 students* 
+
+This is likely your first hands-on encounter with the scientific method. You will go through all stages of a project, and take more autonomy throughout the process. 
+
+You will test participants, analyze the data, interpret and present the results. 
+We encourage you to take over all those aspects as early as possible. 
+We expect you to master the related literature and contribute to the improvement of the experimental design. 
+We do not expect you to be fluent in programming, but you will have to learn to understand and modify code, and eventually write your own. You are in charge of documenting your work. 
+
+
+*Master 2 students* 
+
+You will conduct all stages of the project, including narrowing down the question, preparing the experimental protocol, data acquisition and analysis. 
+Depending on the project, this might include several behavioral pilot experiments and/or data acquisition and/or analysis . 
+
+The direction of your work will pre-defined by your advisors, but you are expected to contribute also to the theoretical aspects and implementation.
+We expect you to take over responsibility for your study as early as possible.
+We expect you to master the literature in which your project is embedded, be the expert concerning all technical details, test participants, analyze the data, and interpret and present the results.
+We do not expect you to be fully fluent in programming, but you will have to learn efficiently to eventually write your own. 
+You are in charge of documenting your work.
+
+
+*PhD students* 
+
+You will conduct all stages of the project, including narrowing down the initial question and building up on it, preparing the experimental protocols, data acquisitions and analyses. Hence, as a PhD student, you become the major driving force of the scientific work, which means you are responsible for the mastery of the literature, all technical details of your studies, the testing of participants, the analysis of the data, their interpretation etc... 
+
+The direction of your work will be initially construed with your advisors, but you are progressively expected to raise to intellectual autonomy, both theoretically and empirically! In fact, you should become the best expert in the team on your own topic. If all goes well, you will get to start working in collaboration with the master students and start learning how to transmit the how tos, work solo but also in a team. 
+
+You are in charge of documenting your work.
+
+
+*What you can expect from us*
+
+You can expect from us: 
+- guidance at all stages of your prohect: from theinitial question, to the paradigmatic approach, the relevant literature, etc
+- help you reach a reasonable working example code and help with debugging, provide analysis feedback
+- discussions, brainstorming, and interpretations of your results
+- feedback on your presentations (slides and report)
+- weekly one-to-one meeting (more if needed, less if needed)
+- weekly group meeting to gather more feedback
