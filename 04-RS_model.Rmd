@@ -57,7 +57,7 @@ summary(rs_model)
 Wright Map or Variable Map
 ```{r}
 # Plot the Variable Map
-IRT.WrightMap(rs_model,show.thr.lab=TRUE) # what package is this from? It did not run for SW
+IRT.WrightMap(rs_model,show.thr.lab=TRUE) 
 ```
 
 Expected Response Curves
@@ -81,7 +81,6 @@ tam.fit(rs_model)
 # We can also check the Rating Scale Thresholds
 rs_threshold <- tam.threshold(rs_model)
 rs_threshold # This provides the detail logit location for each categories for each rater.
-# Dr. Wind: Is the extra category an average line?
 ```
 
 ### Person estimates and fit Statistics

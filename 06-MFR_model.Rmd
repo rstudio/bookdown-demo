@@ -1,3 +1,183 @@
 # Many Facet Rasch Model
 
+## Motivation
+
+Some assessment situations include additional variables of interest beyond person responses and item difficulty.
+
+> Aspects of the measurement process that “routinely and systematically interpose themselves between the ability of the candidates and the difficulty of the test” (B&F, p. 167)
+
+Examples of “Interposing” Variables
+
+- Raters in a constructed-response assessment
+
+- Demographic variables (e.g., gender, race/ethnicity, best language)
+
+- Item/prompt type
+
+- Domain (analytic rubrics)
+
+## Introduction to Many-Facet Rasch (MFR) Model
+
+Many-Facet Rasch Model Allows the researcher to specify explanatory facets beyond person and item locations. It is User-specified and can be applied to any ordinal scoring scheme (dichotomous, polytomous; rating scale or partial-credit). 
+
+The Many-Facet Rasch Model was developed by Mike Linacre (1989/1992) in his dissertation research with Ben Wright at Chicago
+
+## Why to use MFR?
+
+We want to make sure that our conclusions about student writing achievement don’t depend on the “luck of the rater draw” (Engelhard’s often-used phrase)
+
+The MFR model allows us to adjust student achievement estimates for differences in rater severity (and/or other facets).
+
+- Assuming good model-data fit
+
+- Assuming sufficient connectivity
+
+Are we adding dimensions by considering other facets?
+
+- Not if we believe that the facets are key aspects of the measurement process that systematically influence the overall score.
+
+- The MFR model allows us to test hypotheses of invariant calibrations across levels of facets (e.g., individual raters, item types, demographic subgroups)
+
+## MFR Calibrations
+
+The MFR model results in calibrations for individual elements on the logit scale.
+Same “yardstick” as persons and items.
+
+MFR model provides location estimates for elements within each facet such as individual students, items, raters, domains, subgroups, subsets. These can be plotted on the variable map.
+
+There is no single equation for MFR model. You will decide which explanatory facets to include, as well as the scale structure/underlying model, including:
+
+- Dichotomous Rasch model (Rasch, 1960)
+- Polytomous models:
+  - Rating Scale Model (Andrich, 1978)
+  - Partial-Credit Model (Masters, 1982)
+
+You decide the facet across which the scale varies (raters, prompts, subgroups, etc.)
+
+## R-Lab: Runing the Rasch Many-Facet Model in R
+
+### Prepare the Dataset
+
+Let's type in the data into R first.
+
+```{r message=FALSE}
+g.data <- matrix(c(1,1,5,5,3,5,3,
+1,2,9,7,5,8,5,
+1,3,3,3,3,7,1,
+1,4,7,3,1,3,3,
+1,5,9,7,7,8,5,
+1,6,3,5,3,5,1,
+1,7,7,7,5,5,5,
+2,1,6,5,4,6,3,
+2,2,8,7,5,7,2,
+2,3,4,5,3,6,6,
+2,4,5,6,4,5,5,
+2,5,2,4,3,2,3,
+2,6,4,4,6,4,2,
+2,7,3,3,5,5,4,
+3,1,5,5,5,7,3,
+3,2,7,7,5,7,5,
+3,3,3,5,5,5,5,
+3,4,5,3,3,3,1,
+3,5,9,7,7,7,7,
+3,6,3,3,3,5,3,
+3,7,7,7,7,5,7),ncol=7,byrow=TRUE)
+```
+
+This data set contains 7 columns. The first column is the ID indicator for Sr. Scientist, ranged from 1 to 3. The second column is the ID indicator for Jr. Scientist, ranged from 1 to 7. And the rest of the columns (3-7) are the responses matrix, ranged from 1-9. Each column represents a trait that being measured.
+
+```{r}
+g.data <- as.data.frame(g.data)
+colnames(g.data) <- c("subjects","raters","Trait_a","Trait_b","Trait_c","Trait_d","Trait_e")
+```
+
+### Run the FRM model using TAM package
+
+```{r message=FALSE}
+library(TAM)
+```
+
+```{r message=FALSE, results='hide'}
+g.facet <- g.data[,"raters",drop=FALSE]
+g.pid <- g.data$subjects
+g.resp <- g.data[,-c(1:2)]
+g.formulaA <- ~ item * raters + step # formula
+g.model <- tam.mml.mfr(resp=g.resp,facets=g.facet,formulaA=g.formulaA,pid=g.pid)
+# Run the many-facet model
+```
+
+```{r}
+summary(g.model) # Check the model summaries
+```
+
+### Person's Estimates
+```{r}
+## Person's Estimates
+# Compute person fit statistics
+person.fit <- tam.personfit(g.model)
+person.fit # Check the person infit/outfit
+# Person's Ability
+persons.mod <- tam.wle(g.model)
+theta <- persons.mod$theta
+theta # Print out the person's ability
+```
+
+### Item's Estimates
+```{r}
+## Compute Item fit statistics
+item.fit <- msq.itemfit(g.model)
+summary(item.fit)
+
+## Item fit based on WLE 
+item.fit2 <- msq.itemfitWLE(g.model)
+summary(item.fit2)
+
+library(knitr) # Use the knitr package to print out the result table
+kable(g.model$xsi.facets,digits=2)
+```
+
+### Plots
+
+#### The WrightMap 
+
+```{r}
+library(WrightMap)
+IRT.WrightMap(g.model)
+```
+
+The tam.thresholds command provides us with the estimated difficulty for each item-by-rater 
+
+```{r}
+thr <- tam.threshold(g.model)
+item.labs <- c("Trait_a", "Trait_b", "Trait_c", "Trait_d", "Trait_e")
+rater.labs <- c("rater1", "rater2", "rater3")
+```
+
+Now we need to turn it into a matrix formatted the way WrightMap expects. We could organize it by item:
+
+```{r}
+thr1 <- matrix(thr, nrow = 5, byrow = TRUE)
+wrightMap(theta, thr1, label.items = item.labs, thr.lab.text = rep(rater.labs, each = 5))
+```
+
+Or by rater:
+
+```{r}
+thr2 <- matrix(thr, nrow = 3)
+wrightMap(theta, thr2, label.items = rater.labs, thr.lab.text = rep(item.labs,  each = 3), axis.items = "Raters")
+```
+#### Plot Item Response Curves
+
+```{r}
+# Plot Item Response curves
+plot(g.model, type="items")
+# Plot expected response curves
+plot(g.model, type="expected")
+```
+
+## Reference
+
+Robert J. Sternberg & Elena L. Grigorenko (2001) Guilford's Structure of Intellect Model and Model of Creativity: Contributions and Limitations, Creativity Research Journal, 13:3-4, 309-316, DOI: 10.1207/S15326934CRJ1334_08
+
+
 

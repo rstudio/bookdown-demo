@@ -14,7 +14,8 @@ library("readr") # To import the data
 
 ```{r message=FALSE}
 # Import the data
-transreas <- read.csv("transreas.csv") # Cheng - note that I changed to "read.csv" because I'm not sure what package you were using for read_csv()
+transreas <- read.csv("transreas.csv") 
+summary(transreas)
 ```
 
 ### Trim the data
@@ -22,8 +23,8 @@ Similar to the "TAM" package, we only need the responses to run the Dichotomous 
 
 ```{r}
 # Trim the data
-Di_Rasch_data <- transreas[,c(-1,-2)]
-head(Di_Rasch_data) # Take a look
+Di_Rasch_data <- transreas[ ,c(-1,-2)]
+head(Di_Rasch_data,10) # Take a look
 ```
 ### Running Dichotomous Rasch Model with "eRm" package
 We will use the "RM" function to run the Rasch dichotomous model. This function computes the parameter estimates of a Rasch model for binary item responses by using CML estimation.
@@ -88,7 +89,7 @@ Where:
 	  
 ### Item Information Curve (*IIC*)
 Many IRT analyses also look at item information as evidence for precision. This is a statistical summary of the variance of item responses about a certain range on the latent variable. We can use this information to find out **if** and **where** items are providing information about person locations.
-IIC is not a major component of Rasch analyses, because he information is the same for all items in the dichotomous model (same shape). This is because the item slope parameter is fixed to 1 for all items, so all of the items discriminate among students the same way.
+IIC is not a major component of Rasch analyses, because the information is the same for all items in the dichotomous model (same shape). This is because the item slope parameter is fixed to 1 for all items, so all of the items discriminate among students the same way.
 
 ```{r}
 # Use "plotINFO" function for visualizing the item information
@@ -176,11 +177,11 @@ misfit_person$total.persons
 The "eRm" package provides plotting function to show the location of item/person on both logit scale and their t stastistics.
 
 ```{r}
-plotPWmap(Di_Rasch_model) # You can plot the Item Map
-plotPWmap(Di_Rasch_model,pmap=TRUE) # Or you can plot the person Map
-plotPWmap(Di_Rasch_model,imap=TRUE,pmap=TRUE) # You can even put the person and item inside one map
+plotPWmap(Di_Rasch_model,imap=TRUE) # You can plot the Item Map
+plotPWmap(Di_Rasch_model,pmap=TRUE) # You can even put the person and item inside one map
 ```
 Also, we can construct a plot that shows item and person locations in the same graphical display (a Person-Item Map). 
+
 ```{r}
 #To do this, use the following code:
 plotPImap(Di_Rasch_model, sorted = TRUE)
@@ -194,7 +195,7 @@ We can also examine the individual items’ ordering on the logit scale with ref
 The *IRFs/ICCs* that we have been looking at are based on model-expected response probabilities.
 
 ```{r}
-plotICC(Di_Rasch_model,mplot=TRUE, ask = FALSE)
+plotICC(Di_Rasch_model,mplot=TRUE,ask = FALSE)
 ```
 Note that the R package did not plot the observed probability.
 
