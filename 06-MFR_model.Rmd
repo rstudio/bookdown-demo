@@ -18,19 +18,19 @@ Examples of “Interposing” Variables
 
 ## Introduction to Many-Facet Rasch (MFR) Model
 
-Many-Facet Rasch Model Allows the researcher to specify explanatory facets beyond person and item locations. It is User-specified and can be applied to any ordinal scoring scheme (dichotomous, polytomous; rating scale or partial-credit). 
+The Many-Facet Rasch Model allows the researcher to specify explanatory facets beyond person and item locations. The model is user-specified and can be applied to any ordinal scoring scheme (dichotomous, polytomous; rating scale or partial-credit). 
 
-The Many-Facet Rasch Model was developed by Mike Linacre (1989/1992) in his dissertation research with Ben Wright at Chicago
+The Many-Facet Rasch Model was developed by Mike Linacre (1989/1992) in his dissertation research with Ben Wright at Chicago. Since that time, it has been widely used across many measurement contexts.
 
-## Why to use MFR?
+## Why use the MFR model?
 
-We want to make sure that our conclusions about student writing achievement don’t depend on the “luck of the rater draw” (Engelhard’s often-used phrase)
+One popular use of the MFR model is to examine and mitigate differences in rater (judge) severity in performance assessments, where raters score test-taker performances. In these assessments, we want to make sure that our conclusions about test-takers' achievement don’t depend on the “luck of the rater draw” (Engelhard’s often-used phrase).
 
-The MFR model allows us to adjust student achievement estimates for differences in rater severity (and/or other facets).
+The MFR model allows us to adjust test-taker achievement estimates for differences in rater severity (and/or other facets), as long as:
 
-- Assuming good model-data fit
+- There is evidence of acceptable model-data fit for all facets
 
-- Assuming sufficient connectivity
+- There is sufficient connectivity in the data (raters and test-takers are linked; more on that later in the semester)
 
 Are we adding dimensions by considering other facets?
 
@@ -40,10 +40,7 @@ Are we adding dimensions by considering other facets?
 
 ## MFR Calibrations
 
-The MFR model results in calibrations for individual elements on the logit scale.
-Same “yardstick” as persons and items.
-
-MFR model provides location estimates for elements within each facet such as individual students, items, raters, domains, subgroups, subsets. These can be plotted on the variable map.
+MFR model provides location estimates for individual elements within each facet such as individual students, items, raters, domains, subgroups, subsets. These can be plotted on the variable map as before.
 
 There is no single equation for MFR model. You will decide which explanatory facets to include, as well as the scale structure/underlying model, including:
 
@@ -52,13 +49,15 @@ There is no single equation for MFR model. You will decide which explanatory fac
   - Rating Scale Model (Andrich, 1978)
   - Partial-Credit Model (Masters, 1982)
 
-You decide the facet across which the scale varies (raters, prompts, subgroups, etc.)
+For the PC-MFR model, the researcher decides the facet across which the scale varies (raters, prompts, subgroups, etc.).
 
 ## R-Lab: Runing the Rasch Many-Facet Model in R
 
+NOTE: This lab is based on the TAM package for R. Although it is possible to run MFR models using this package, its use for this model is not currently widespread among researchers. In addition, there is not a direct correspondence between the information that TAM provides and the information that Facets provides about the MFR model results. Please keep this in mind when using the package for your MFR model analyses and watch for updates in the Rasch literature.
+
 ### Prepare the Dataset
 
-Let's type in the data into R first.
+Let's type in the data into R first. Please see the Facets lab guide for details about the data.
 
 ```{r message=FALSE}
 g.data <- matrix(c(1,1,5,5,3,5,3,
@@ -84,24 +83,29 @@ g.data <- matrix(c(1,1,5,5,3,5,3,
 3,7,7,7,7,5,7),ncol=7,byrow=TRUE)
 ```
 
-This data set contains 7 columns. The first column is the ID indicator for Sr. Scientist, ranged from 1 to 3. The second column is the ID indicator for Jr. Scientist, ranged from 1 to 7. And the rest of the columns (3-7) are the responses matrix, ranged from 1-9. Each column represents a trait that being measured.
+This data set contains 7 columns. The first column is the ID indicator for Sr. Scientist, ranging from 1 to 3 to indicate the three Sr. Scientists. The second column is the ID indicator for Jr. Scientist, ranging from 1 to 7. The rest of the columns (3-7) are the responses matrix, ranged from 1-9. Each column represents a trait that is being measured.
+
+Note about the data structure:
+This dataset is organized in long format (rather than wide format). As a result, there are multiple rows for each Sr. Scientist. This is because each Sr. Scientist rated all of the Jr. Scientists.
+
+Now, let's add column names to our dataset. First, we will turn the data into a data.frame object. Then, we will add column names.
 
 ```{r}
 g.data <- as.data.frame(g.data)
 colnames(g.data) <- c("subjects","raters","Trait_a","Trait_b","Trait_c","Trait_d","Trait_e")
 ```
 
-### Run the FRM model using TAM package
+### Run the MFR model using the TAM package
 
 ```{r message=FALSE}
 library(TAM)
 ```
 
 ```{r message=FALSE, results='hide'}
-g.facet <- g.data[,"raters",drop=FALSE]
-g.pid <- g.data$subjects
-g.resp <- g.data[,-c(1:2)]
-g.formulaA <- ~ item * raters + step # formula
+g.facet <- g.data[,"raters",drop=FALSE] # specify which facets will be included in the model (Here, we are including raters as a facet. Items ("assessment opportunities"; occassions on which the object of measurement is observed) are included as a facet by default)
+g.pid <- g.data$subjects # specify the ID for the object of measurement (Here, this is the Jr. Scientist)
+g.resp <- g.data[,-c(1:2)] # Indicate the response matrix
+g.formulaA <- ~ item + raters + step # Model formula for RS-MFR model (to specify a PC-MFR model where the scale varies by rater)
 g.model <- tam.mml.mfr(resp=g.resp,facets=g.facet,formulaA=g.formulaA,pid=g.pid)
 # Run the many-facet model
 ```
@@ -110,9 +114,9 @@ g.model <- tam.mml.mfr(resp=g.resp,facets=g.facet,formulaA=g.formulaA,pid=g.pid)
 summary(g.model) # Check the model summaries
 ```
 
-### Person's Estimates
+### Test-taker Estimates
 ```{r}
-## Person's Estimates
+## Person (test-taker) Estimates
 # Compute person fit statistics
 person.fit <- tam.personfit(g.model)
 person.fit # Check the person infit/outfit
@@ -126,7 +130,7 @@ theta # Print out the person's ability
 ```{r}
 ## Compute Item fit statistics
 item.fit <- msq.itemfit(g.model)
-summary(item.fit)
+summary(item.fit) # fit is shown for the rater*item combinations
 
 ## Item fit based on WLE 
 item.fit2 <- msq.itemfitWLE(g.model)
