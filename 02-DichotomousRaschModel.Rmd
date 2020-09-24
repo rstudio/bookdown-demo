@@ -68,7 +68,7 @@ describe(transreas)
 # The Mean for each task in this table is the Proportion Correct statistic for each item (item difficulty estimate for Classical Test Theory)
 ```
 
-### Runing the Dichotomous Rasch Model
+### Runing the Dichotomous Rasch Model with CML Method
 To run the dichotomous Rasch Model using the TAM package, we only need students' item-level responses. So the first and second column of our data are not needed. 
 ```{r}
 # Trim the data
@@ -86,7 +86,7 @@ Di_Rasch_model <- tam(Di_Rasch_data)
 ```{r}
 # Check the summary
 summary(Di_Rasch_model)
-# Plot the variable map
+# Plot the variable map 
 IRT.WrightMap(Di_Rasch_model,show.thr.lab=FALSE)
 ```
 
@@ -180,6 +180,74 @@ Table3$Infit_t <- Di_Person_fit$infitPerson_t
 # Note here the TAM package only report t value instead of p value. However, you still can calculate that by yourself if you need it.
 ```
 
+## Runing the Dichotomous Rasch Model with JML Method
+
+I just noticed that we can also use the **tam.jml()** function to run the Dichotomous Rasch Model using the JML method, which is the same estimation method with the Winstep software. Most of your code will be the same with the previous example. This section will give to an example to run the Dichotomous Rasch Model with JML Method.
+
+```{r results='hide'}
+# Running the Dichotomous Rasch Model use tam.jml() function
+Di_Rasch_model_jml <- tam.jml(Di_Rasch_data)
+```
+
+### Overall Model Summary
+
+```{r}
+# Check the summary
+summary(Di_Rasch_model_jml)
+# Plot the person-item map
+difficulty <- Di_Rasch_model_jml$xsi
+wrightMap(Di_Rasch_data,difficulty)
+```
+
+### Item Parameters
+First of all, let's pull out the item parameters from your model.
+```{r}
+difficulty <- Di_Rasch_model_jml$xsi
+head(difficulty) 
+mean(difficulty) # The mean difficulty of the tasks is -1.985
+sd(difficulty) # The standard deviation for task difficulty is 1.595
+```
+
+- The 'xsi' column denotes the item difficulty in a logit scale; 'se.xsi' is the standard error for each item. The standard error is an estimate of the precision of the item difficulty estimates, where larger standard errors indicate less precise estimates.
+
+- Since the `xsi` indicates the item difficulty, higher values indicate more-difficult items (higher levels of the construct are required for a positive response). For instance, item 9 is the hardest item ( `xsi` = 1.00), whereas item 6 is the easiest item (`xsi` = -4.07).
+
+We can also visualize the item difficulty using a simple histogram
+```{r}
+hist(difficulty) 
+```
+
+Now let's calculate the Item fit statistics
+```{r}
+Di_fit <- tam.jml.fit(Di_Rasch_model_jml) 
+head(Di_fit$fit.item)
+```
+
+### Person Parameters and fit statistics
+
+```{r}
+head(Di_fit$fit.person)
+# View Person Scores and Person ability, which is the "theta"
+# In the data frame above, the `theta` is the person's ability measure on a logit scale.
+mean(Di_Rasch_model_jml$theta) # The average ability for test-taker is almost zero.
+sd(Di_Rasch_model_jml$theta) # The standard deviation for test-taker ability measures is 1.472.
+mean(Di_Rasch_model_jml[["errorWLE"]]) # The mean Standard Error for test-taker ability measures is 1.025.
+``` 
+
+Visualize the Person ability measures using a simple histogram
+```{r}
+hist(Di_Rasch_model_jml$theta)
+```
+
+### Compare the results of estimated parameters between JML and MML method
+
+```{r}
+plot(Di_Rasch_model_jml$xsi, Di_Rasch_model$xsi$xsi, pch=16,
+xlab=expression(paste(xi[i], "(JML)")),
+ylab=expression(paste(xi[i], "(MML)")),
+main="Item Parameter Estimate Comparison")
+lines(c(-5,5), c(-5,5), col="gray" )
+```
 
 
 ## Example APA-Style Results Write-Up (Transitive Reasoning Test)

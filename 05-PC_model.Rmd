@@ -27,6 +27,7 @@ The Partial Credit Model [Masters, 1982](https://link.springer.com/article/10.10
 Partial Credit Model Equation
 
 $$ln\left[\frac{P_{n_i(xi=k)}}{P_{n_i(xi=k-1)}}\right]=\theta_{n}-\delta_{i}-\tau_{ik}$$
+
 In the PC model, Thresholds($τ_{k}$) are estimated empirically for each element of one facet, such as items. They are not necessarily evenly spaced or ordered as expected. In contrast to the RS model, the location and relative distance between thresholds is estimated separately for each item.
 
 ## R-Lab: Rasch Partial Credit Model with "eRm" package

@@ -34,7 +34,7 @@ we will try running a polytomous Rasch model using some of the example data that
 
 ```{r message=FALSE}
 # Load the data
-braun_data <- read.csv("braun data.csv") # changed from read_csv
+braun_data <- read.csv("braun data.csv")
 head(braun_data)
 # Get a quick overview of the data with the summary() function
 summary(braun_data)
@@ -57,31 +57,33 @@ summary(rs_model)
 Wright Map or Variable Map
 ```{r}
 # Plot the Variable Map
-IRT.WrightMap(rs_model,show.thr.lab=TRUE) # what package is this from? It did not run for SW
+graphics.off() # In case you can not run the plot correctly
+IRT.WrightMap(rs_model,show.thr.lab=TRUE) 
 ```
 
 Expected Response Curves
 ```{r}
 # Plot expected response curves 
-plot(rs_model,ask=TRUE)
+plot(rs_model,ask=FALSE)
 ```
 
 Item characteristic curves (but now as thresholds)
 ```{r}
-
-plot(rs_model, type="items") # does not work for SW
+graphics.off()
+plot(rs_model, type="items")
 ```
 
 ### Item estimates and fit Statistics
 ```{r}
 # We can use the similar code to achieve the item estimate as what we did for the Dichotomous Analysis
+graphics.off()
 rs_model$xsi # The first column is the item difficulty. In this case, is the rater's rating severity.
+rater_estimates <- rs_model$xsi
 tam.fit(rs_model) 
 # Note the last two rows also provides you the average fit statistics for category 1 and category 2. For this analysis, we are not focus on these data.
 # We can also check the Rating Scale Thresholds
 rs_threshold <- tam.threshold(rs_model)
 rs_threshold # This provides the detail logit location for each categories for each rater.
-# Dr. Wind: Is the extra category an average line?
 ```
 
 ### Person estimates and fit Statistics
@@ -166,18 +168,15 @@ max.resid <- ceiling(max(stresid))
 min.resid <- ceiling(min(stresid))
 
 for(item.number in 1:ncol(stresid)){
-  
   plot(stresid[, item.number], ylim = c(min.resid, max.resid),
        main = paste("Standardized Residuals for Item ", item.number, sep = ""),
        ylab = "Standardized Residual", xlab = "Person Index")
   abline(h = 0, col = "blue")
   abline(h=2, lty = 2, col = "red")
   abline(h=-2, lty = 2, col = "red")
-  
   legend("topright", c("Std. Residual", "Observed = Expected", "+/- 2 SD"), pch = c(1, NA, NA), 
          lty = c(NA, 1, 2),
          col = c("black", "blue", "red"), cex = .8)
-  
 }
 
 ```
