@@ -1,5 +1,5 @@
 book_filename: omic_sciences
-delete_merged_file: true
+new_session: yes
 rmd_files: ["index.Rmd", "01-getting-started.Rmd","02-bioconducter.Rmd",
 "03-dplyr-tutorial.Rmd","04-linear-algebra.Rmd","05-linear-modeling-genomics.Rmd",
   "06-distance-and-dimension-reduction.Rmd",

@@ -8,7 +8,7 @@ output:
     highlight: tango
 ---
 
-```{r options, echo=FALSE}
+```{r, echo=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo=FALSE)
 opts_knit$set(progress=FALSE, verbose=FALSE)

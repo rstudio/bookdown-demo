@@ -11,7 +11,7 @@ toc_depth: 2
 ---
 
 # Annotation resources 
-```{r options, echo=FALSE}
+```{r, echo=FALSE}
 library(knitr)
 knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
 

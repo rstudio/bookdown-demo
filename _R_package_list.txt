@@ -65,8 +65,3 @@ fgsea,warn.conflicts = F
 ggplot2, warn.conflicts = F
 dplyr, warn.conflicts = F
 org.Sc.sgd.db
-airway
-"dplyr"
-"ggplot2"
-vsn
-pheatmap

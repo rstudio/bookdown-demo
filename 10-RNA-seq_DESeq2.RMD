@@ -3,7 +3,7 @@ title: "RNA-seq gene-level analysis"
 layout: page
 ---
 
-```{r options, echo=FALSE}
+```{r, echo=FALSE}
 library(knitr)
 
 ```
