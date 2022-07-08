@@ -1,0 +1,319 @@
+---
+layout: page
+title: dplyr tutorial
+---
+
+```{r options, echo=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
+
+```
+# Brief Introduction to `dplyr`
+
+The learning curve for R syntax is slow. One of the more difficult aspects that requires some getting used to is subsetting data tables. The `dplyr` package brings these tasks closer to English and we are therefore going to introduce two simple functions: one is used to subset and the other to select columns.
+```{r,echo=FALSE}
+url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleMiceWeights.csv"
+filename <- "femaleMiceWeights.csv"
+library(downloader)
+if (!file.exists(filename)) download(url, filename)
+```
+
+Take a look at the dataset we read in:
+```{r}
+filename <- "femaleMiceWeights.csv"
+dat <- read.csv(filename) ## previously downloaded  
+head(dat) #In R Studio use View(dat)
+```
+
+There are two types of diets, which are denoted in the first column. If we want just the weights, we only need the second column. So if we want the weights for mice on the `chow` diet, we subset and filter like this:
+
+```{r,message=FALSE}
+library(dplyr) 
+chow <- filter(dat, Diet=="chow") #keep only the ones with chow diet
+head(chow)
+```
+
+And now we can select only the column with the values:
+
+```{r}
+chowVals <- select(chow,Bodyweight)
+head(chowVals)
+```
+
+A nice feature of the `dplyr` package is that you can perform consecutive tasks by using what is called a "pipe". In `dplyr` we use `%>%` to denote a pipe. This symbol tells the program to first do one thing and then do something else to the result of the first. Hence, we can perform several data manipulations in one line. For example:
+
+```{r}
+chowVals <- filter(dat, Diet=="chow") %>% select(Bodyweight)
+```
+
+In the second task, we no longer have to specify the object we are editing since it is whatever comes from the previous call. 
+
+Also, note that if `dplyr` receives a `data.frame` it will return a `data.frame`. 
+```{r}
+class(dat)
+class(chowVals)
+```
+
+For pedagogical reasons, we will often want the final result to be a simple `numeric` vector. To obtain such a vector with `dplyr`, we can apply the `unlist` function which turns `lists`, such as `data.frames`, into `numeric` vectors:
+
+```{r}
+chowVals <- filter(dat, Diet=="chow") %>% select(Bodyweight) %>% unlist
+class( chowVals )
+```
+
+
+To do this in R without `dplyr` the code is the following:
+
+```{r}
+chowVals <- dat[ dat$Diet=="chow", colnames(dat)=="Bodyweight"]
+```
+
+
+
+## What is dplyr?
+
+dplyr is a powerful R-package to transform and summarize tabular data with rows and columns. For another explanation of dplyr see the dplyr package vignette: [Introduction to dplyr](http://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html)
+
+## Why Is It Useful?
+
+The package contains a set of functions (or "verbs") that perform common data manipulation operations such as filtering for rows, selecting specific columns, re-ordering rows, adding new columns and summarizing data. 
+
+In addition, dplyr contains a useful function to perform another common task which is the "split-apply-combine" concept.  We will discuss that in a little bit. 
+
+## How Does It Compare To Using Base Functions R?
+
+If you are familiar with R, you are probably familiar with base R functions such as split(), subset(), apply(), sapply(), lapply(), tapply() and aggregate(). Compared to base functions in R, the functions in dplyr are easier to work with, are more consistent in the syntax and are targeted for data analysis around data frames, instead of just vectors. 
+
+## How Do I Get dplyr? 
+
+To install dplyr:
+
+```{r, eval=FALSE}
+install.packages("dplyr")
+```
+
+To load dplyr:
+
+```{r, message=FALSE}
+library(dplyr)
+```
+
+## Data: Mammals Sleep
+
+The msleep (mammals sleep) data set contains the sleep times and weights for a set of mammals and is available in the dagdata repository on github. This data set contains 83 rows and 11 variables.  
+
+Download the msleep data set in CSV format from [here](https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/msleep_ggplot2.csv), and then load into R:
+
+```{r}
+url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/msleep_ggplot2.csv"
+msleep <- read.csv(url)
+head(msleep)
+```
+
+The columns (in order) correspond to the following: 
+
+column name | Description
+--- | ---
+name | common name
+genus | taxonomic rank
+vore | carnivore, omnivore or herbivore?
+order | taxonomic rank
+conservation | the conservation status of the mammal
+sleep\_total | total amount of sleep, in hours
+sleep\_rem | rem sleep, in hours
+sleep\_cycle | length of sleep cycle, in hours
+awake | amount of time spent awake, in hours
+brainwt | brain weight in kilograms
+bodywt | body weight in kilograms
+
+
+## Important dplyr Verbs To Remember
+
+dplyr verbs | Description
+--- | ---
+`select()` | select columns 
+`filter()` | filter rows
+`arrange()` | re-order or arrange rows
+`mutate()` | create new columns
+`summarise()` | summarise values
+`group_by()` | allows for group operations in the "split-apply-combine" concept
+
+
+## dplyr Verbs In Action
+
+The two most basic functions are `select()` and `filter()`, which selects columns and filters rows respectively. 
+
+## Selecting Columns Using `select()`
+
+Select a set of columns: the name and the sleep\_total columns. 
+
+```{r}
+sleepData <- select(msleep, name, sleep_total)
+head(sleepData)
+```
+
+To select all the columns *except* a specific column, use the "-" (subtraction) operator (also known as negative indexing):
+
+```{r}
+head(select(msleep, -name))
+```
+
+To select a range of columns by name, use the ":" (colon) operator:
+
+```{r}
+head(select(msleep, name:order))
+```
+
+To select all columns that start with the character string "sl", use the function `starts_with()`:
+
+```{r}
+head(select(msleep, starts_with("sl")))
+```
+
+Some additional options to select columns based on a specific criteria include:
+
+1. `ends_with()` = Select columns that end with a character string
+2. `contains()` = Select columns that contain a character string
+3. `matches()` = Select columns that match a regular expression
+4. `one_of()` = Select column names that are from a group of names
+
+
+
+## Selecting Rows Using `filter()`
+
+Filter the rows for mammals that sleep a total of more than 16 hours. 
+
+```{r}
+filter(msleep, sleep_total >= 16)
+```
+
+Filter the rows for mammals that sleep a total of more than 16 hours *and* have a body weight of greater than 1 kilogram.
+
+```{r}
+filter(msleep, sleep_total >= 16, bodywt >= 1)
+```
+
+Filter the rows for mammals in the Perissodactyla and Primates taxonomic order
+
+```{r}
+filter(msleep, order %in% c("Perissodactyla", "Primates"))
+```
+
+You can use the boolean operators (e.g. >, <, >=, <=, !=, %in%) to create the logical tests. 
+
+## Pipe Operator: %>%
+
+Before we go any further, let's introduce the pipe operator: %>%. dplyr imports this operator from another package (magrittr).This operator allows you to pipe the output from one function to the input of another function. Instead of nesting functions (reading from the inside to the outside), the idea of piping is to read the functions from left to right. 
+
+Here's an example you have seen:
+
+```{r}
+head(select(msleep, name, sleep_total))
+```
+
+Now in this case, we will pipe the msleep data frame to the function that will select two columns (name and sleep\_total) and then pipe the new data frame to the function `head()`, which will return the head of the new data frame. 
+
+```{r}
+msleep %>% 
+    select(name, sleep_total) %>% 
+    head
+```
+
+You will soon see how useful the pipe operator is when we start to combine many functions.  
+
+## Back To dplyr Verbs In Action
+
+Now that you know about the pipe operator (%>%), we will use it throughout the rest of this tutorial. 
+
+
+## Arrange Or Re-order Rows Using `arrange()`
+
+To arrange (or re-order) rows by a particular column, such as the taxonomic order, list the name of the column you want to arrange the rows by:
+
+```{r}
+msleep %>% arrange(order) %>% head
+```
+
+Now we will select three columns from msleep, arrange the rows by the taxonomic order and then arrange the rows by sleep\_total. Finally, show the head of the final data frame:
+
+```{r}
+msleep %>% 
+    select(name, order, sleep_total) %>%
+    arrange(order, sleep_total) %>% 
+    head
+```
+
+Same as above, except here we filter the rows for mammals that sleep for 16 or more hours, instead of showing the head of the final data frame:
+
+```{r}
+msleep %>% 
+    select(name, order, sleep_total) %>%
+    arrange(order, sleep_total) %>% 
+    filter(sleep_total >= 16)
+```
+
+Something slightly more complicated: same as above, except arrange the rows in the sleep\_total column in a descending order. For this, use the function `desc()`
+
+```{r}
+msleep %>% 
+    select(name, order, sleep_total) %>%
+    arrange(order, desc(sleep_total)) %>% 
+    filter(sleep_total >= 16)
+```
+
+
+## Create New Columns Using `mutate()`
+
+The `mutate()` function will add new columns to the data frame. Create a new column called rem_proportion, which is the ratio of rem sleep to total amount of sleep. 
+
+
+```{r}
+msleep %>% 
+    mutate(rem_proportion = sleep_rem / sleep_total) %>%
+    head
+```
+
+You can many new columns using mutate (separated by commas). Here we add a second column called bodywt_grams which is the bodywt column in grams. 
+
+```{r}
+msleep %>% 
+    mutate(rem_proportion = sleep_rem / sleep_total, 
+           bodywt_grams = bodywt * 1000) %>%
+    head
+```
+
+## Create summaries of the data frame using `summarise()`
+
+The `summarise()` function will create summary statistics for a given column in the data frame such as finding the mean. For example, to compute the average number of hours of sleep, apply the `mean()` function to the column sleep\_total and call the summary value avg\_sleep. 
+
+```{r}
+msleep %>% 
+    summarise(avg_sleep = mean(sleep_total))
+```
+
+There are many other summary statistics you could consider such `sd()`, `min()`, `max()`, `median()`, `sum()`, `n()` (returns the length of vector), `first()` (returns first value in vector), `last()` (returns last value in vector) and `n_distinct()` (number of distinct values in vector). 
+
+```{r}
+msleep %>% 
+    summarise(avg_sleep = mean(sleep_total), 
+              min_sleep = min(sleep_total),
+              max_sleep = max(sleep_total),
+              total = n())
+```
+
+    
+## Group operations using `group_by()`
+
+The `group_by()` verb is an important function in dplyr. As we mentioned before it's related to concept of "split-apply-combine". We literally want to split the data frame by some variable (e.g. taxonomic order), apply a function to the individual data frames and then combine the output.   
+
+Let's do that: split the msleep data frame by the taxonomic order, then ask for the same summary statistics as above. We expect a set of summary statistics for each taxonomic order. 
+
+```{r}
+msleep %>% 
+    group_by(order) %>%
+    summarise(avg_sleep = mean(sleep_total), 
+              min_sleep = min(sleep_total), 
+              max_sleep = max(sleep_total),
+              total = n())
+```
+

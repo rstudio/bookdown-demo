@@ -1,0 +1,828 @@
+---
+title: Bioconductor for genome-scale data -- motivations and core values (optional,
+  for enrichment)
+layout: page
+---
+
+```{r options, echo=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
+
+```
+
+```{r setup,echo=FALSE,results="hide"}
+suppressWarnings({
+suppressPackageStartupMessages({
+library(Biobase)
+library(GSE5859)
+library(annotate)
+library(BiocParallel)
+library(VariantAnnotation)
+library(BSgenome.Hsapiens.UCSC.hg19)
+})
+})
+```
+
+
+```{r setup2,echo=FALSE,results="hide"}
+suppressMessages({
+suppressWarnings({
+suppressPackageStartupMessages({
+library(png)
+library(grid)
+library(Homo.sapiens)
+library(GenomicRanges)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(GenomicAlignments)
+library(Rsamtools)
+library(ph525x)
+})
+})
+})
+```
+
+<a name="rlang"></a>
+
+# R Bioconductor
+
+<a name="whyr"></a>
+
+## Why R Bioconductor?
+
+Bioconductor is based on [R](www.r-project.org).  Three key reasons for this are:
+
+- R is used by many statisticians and biostatisticians to create algorithms that advance our ability to understand complex experimental data.
+- R is highly interoperable, and fosters reuse of software components written in other languages. 
+- R is portable to the key operating systems running on commodity computing equipment (Linux, MacOSX, Windows) and can be used immediately by beginners with access to any of these platforms.
+
+In summary, R's ease-of-use and central role in statistics and "data science" make it a natural choice for a tool-set for use by biologists and statisticians confronting genome-scale experimental data.  Since the Bioconductor project's inception in 2001, it has kept pace with growing volumes
+and complexity of data emerging in genome-scale biology.
+
+<a name="funobj"></a>
+
+### Functional object-oriented programming
+
+R combines functional and object-oriented programming paradigms.^[[Chambers 2014](https://projecteuclid.org/euclid.ss/1408368569)]
+
+- In functional programming, notation and program activity mimic the
+concept of function in mathematics.  For example
+```
+square = function(x) x^2
+```
+is valid R code that defines the symbol `square` as a function that
+computes the second power of its input.  The body of the function
+is the program code `x^2`, in which `x` is a "free variable".
+Once `square` has been defined in this way, `square(3)` has
+value `9`.  We say the `square` function has been evaluated on
+argument `3`.  **In R, all computations proceed by evaluation of functions.**
+
+- In object-oriented programming, a strong focus is placed upon
+formalizing data structure, and defining methods that take
+advantage of guarantees established through the formalism.  This
+approach is quite natural but did not get well-established in
+practical computer programming until the 1990s.  As an
+advanced example with Bioconductor, we will consider an 
+approach to defining an "object" representing on the genome
+of *Homo sapiens*:
+```{r lkho}
+library(Homo.sapiens)
+class(Homo.sapiens)
+methods(class=class(Homo.sapiens))
+```
+We say that `Homo.sapiens` is an **instance** of the `OrganismDb` 
+**class**.  Every instance of this class will respond meaningfully
+to the methods
+listed above.  Each method is implemented as an R function.
+What the function does depends upon the class of its arguments.
+Of special note at this juncture are the methods
+`genes`, `exons`, `transcripts` which will yield information about
+fundamental components of genomes.  
+These methods will succeed for human and
+for other model organisms such as *Mus musculus*, *S. cerevisiae*,
+*C. elegans*, and others for which the Bioconductor project and its contributors have defined `OrganismDb` representations.
+
+<a name="rpacks"></a>
+
+### R packages, modularity, continuous integration
+
+This section can be skipped on a first reading.
+
+**Package structure**
+
+We can perform object-oriented functional programming with R
+by writing R code.  A basic approach is to create "scripts" that
+define all the steps underlying processes of data import and
+analysis.  When scripts are written in such a way that they
+only define functions and data structures, it becomes possible to
+*package* them for convenient distribution to other users
+confronting similar data management and data analysis problems.
+
+The R software [packaging protocol](https://cran.r-project.org/doc/manuals/r-release/R-exts.html) specifies how source code in R and other languages can be organized together with metadata and documentation to foster
+convenient testing and redistribution.  For example, an early
+version of the package defining this document had the folder 
+layout given below:
+
+```
+├── DESCRIPTION  (text file with metadata on provenance, licensing)
+├── NAMESPACE    (text file defining imports and exports)
+├── R            (folder for R source code)
+├── README.md    (optional for github face page)
+├── data         (folder for exemplary data)
+├── man          (folder for detailed documentation)
+├── tests        (folder for formal software testing code)
+└── vignettes    (folder for high-level documentation)
+    ├── biocOv1.Rmd
+    ├── biocOv1.html
+```
+
+The packaging protocol document "Writing R Extensions" provides
+full details.  The R command `R CMD build [foldername]` will operate on the
+contents of a package folder to create an archive that can
+be added to an R installation using `R CMD INSTALL [archivename]`.
+The R studio system performs these tasks with GUI elements.
+
+**Modularity and formal interdependence of packages**
+
+The packaging protocol helps us to isolate software that
+performs a limited set of operations, and to
+identify the **version** of a program collection
+that is inherently changing over time.  There is
+no objective way to determine whether
+a set of operations is the right size for packaging.
+Some very useful packages carry out only a small number of
+tasks, while others have very broad scope.  What is important
+is that the package concept permits **modularization** of
+software.  This is important in two dimensions: scope and time.
+Modularization of scope is important to allow parallel independent
+development of software tools that address distinct problems.
+Modularization in time is important to allow identification of
+versions of software whose behavior is stable.
+
+<a name="contin"></a>
+
+**Continuous integration: testing package correctness and interoperability**
+
+The figure below is a snapshot of the [build report](http://bioconductor.org/checkResults/3.6/bioc-LATEST/) for the development branch of Bioconductor.
+
+```{r lkci,fig=TRUE,echo=FALSE,fig.wide=TRUE, fig.cap="Continuous integration report for Bioconductor devel branch.  All packages are checked every night on three major computing platforms."}
+buildRep()
+#im = readPNG("buildRep.png")
+#grid.raster(im)
+```
+
+The six-column subtable in the upper half of the display
+includes a column "Installed pkgs", with entry 1857 for
+the linux platform.  This number varies between platforms
+and is generally increasing over time for the devel branch.
+
+
+### Putting it together
+
+Bioconductor's core developer group works hard to develop
+data structures that allow users to work conveniently with
+genomes and genome-scale data.  Structures are devised to
+support the main phases of experimentation in genome scale biology:
+
+- Parse large-scale assay data as produced by microarray or sequencer flow-cell scanners.
+- Preprocess the (relatively) raw data to support reliable statistical interpretation.
+- Combine assay quantifications with sample-level data to test hypotheses about relationships between molecular processes and organism-level characteristics such as growth, disease state.
+
+In this course we will review the objects and functions that
+you can use to perform these and related tasks in your own
+research.
+88888888888888888888888888888888888888888888888888888888888
+
+## Installing Bioconductor
+
+Much of this Bioconductor section you'll only appreciate later in the course so don't worry if you don't grasp it all, and many of the sections we'll skim over and save for later.
+
+In order to install Bioconductor, copy the following two lines into your R console.
+
+```{r, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install()
+```
+
+This will install the core Bioconductor packages. Further packages can be installed using the `BiocManager::install` function and specifying a character vector of which packages to install. For example, to install the "affy" and "genefilter" libraries you would type:
+
+```{r, eval=FALSE}
+BiocManager::install(c("genefilter","geneplotter"))
+```
+
+Remember, you still need to load the library, e.g., `library(genefilter)`, if you want to use the package.
+
+More information on installing and updating Bioconductor packages can be found at:
+
+http://bioconductor.org/install/
+
+88888888888888888888888888888888888888888888888888888888888
+
+## Required packages
+
+The one script I will ask you to run once you've installed Bioconductor 
+is called listPackages.R. This is an R script that includes the following:
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+pkgs <- local({
+        files <- dir(pattern = glob2rx("*.Rmd"))
+        code <- lapply(files, readLines) %>% unlist
+        r <- regexec("^library\\((.*?)\\)", code, perl = TRUE)
+        m <- regmatches(code, r)
+        u <- sapply(m, length) > 0
+        sapply(m[u], function(x) x[2]) %>% unique
+})
+writeLines(pkgs, "_R_package_list.txt")
+```
+This little script runs through all the .Rmd files in your directory and just
+looks for the word library, grabs and and pulls it out. It doesn't do a 
+perfect job, but does pretty good. So first, these are all the pkgs that 
+you will need for the course. There are many.This next line of code compares 
+this to the all the packages youo already have installed to see what packages 
+you need. This will be different for each person. I've also made 
+
+```{r}
+int <- installed.packages()[, 1]
+need <- setdiff(pkgs, int)
+bioc = readLines("_R_package_list.txt")
+git= readLines("_R_package_github.txt")
+```
+The required packages come in two flavors: those that are available through
+Bioconductor, and those that are available through a github website.
+I've written these out into two different textfiles: R_packages_github.txt and
+_R_package_list.txt. You will need to take your need list and split it into 
+those that fall into the github list and those that fall into the R package 
+list (meaning they are available through Bioconductor). For those that fall 
+into the respective lists install as follows:
+
+```{r}
+
+# installing the R packages required for class after
+# installing the latest versions of R, Rstudio 
+# and Bioconductor
+
+bioc = readLines("_R_package_list.txt")
+# bioc = setdiff(bioc, need) optional, it won't install it if you don't need it
+BiocManager::install(bioc)
+
+git = readLines("_R_package_github.txt")
+# git = setdiff(git, need) optional, it won't install it if you don't need it
+git = paste0("genomicsclass/",git)
+
+devtools::install_github(git)
+```
+p.s. All of your needs should be met by bioc and git, i.e., you should have no "needs"
+leftover! The `::` is a shortcut when you want to avoid loading a library, or when
+you have a potential function conflict with another library that is loaded. This shortened version of the script is in requireed_packages.R...so that's all you need to run.
+
+### Finding help
+
+There are many ways to find help directly from within R. Typically, every function will have its own manual page which is accessible by typing a question mark ?, followed by the function name and hitting return.
+
+```{r, eval=FALSE, tidy=FALSE}
+?mean
+?mad
+example(mad)
+example(boxplot)
+```
+
+Simply typing the name of the function, without parentheses, and hitting return will show the source code of the function.
+
+The manual page contains a **description**, example **usage**, explanation of all **arguments**, further **details**, explanation of the returned **value**, **references**, **see also** linking to other functions, and **examples**.
+
+If you have a question about a particular object in R, you might want to look up the help for the "class" of that object, which will tell you how to construct such an object and what methods are available for manipulating such objects. For example, we can find the name of the class of an object and look up help:
+
+```{r, eval=FALSE, tidy=FALSE}
+class(6)
+?numeric
+?"numeric-class"
+```
+
+Sometimes, the constructor function and the class name will point to the same help page, although this is not necessarily true for all packages.
+
+```{r, eval=FALSE, tidy=FALSE}
+library(Biobase)
+?ExpressionSet
+?"ExpressionSet-class"
+```
+
+A quick way to find out what methods are available for a given class:
+
+```{r, eval=FALSE}
+methods(class="ExpressionSet")
+methods(class="lm")
+```
+
+A quick way to look up functions in a given package is to write out the package name, two ":" symbols and then trying tab-completion to get a list of functions, exported or not OR use ls followed by the name of the package:
+
+```{r, eval=FALSE, tidy=FALSE}
+library(geneplotter)
+geneplotter::
+ls("package:geneplotter")
+```
+
+### Source code
+
+You can find the source code for many functions by typing out the name of the function with () and pressing enter.
+
+```{r}
+mad
+
+```
+
+You might have to specify a particular class if you want source code for a method:
+
+```{r}
+library(DESeq2)
+plotMA
+showMethods("plotMA")
+getMethod("plotMA","data.frame")
+```
+
+### Vignettes
+
+"Vignettes" are documents which accompany R packages and are required for every Bioconductor package. They typically show an example workflow of the functions of the package using "chunks" of code with descriptive text, exactly as the document you are currently reading. 
+
+You can find Bioconductor vignettes in PDF or R script form on the Bioconductor website, but they are even easier to access directly through R. Furthermore, accessing vignettes through R guarantees that the vignette is for the correct version of the package that you are using. The following code will list the names of the vignettes for a given package:
+
+```{r, eval=FALSE}
+vignette(package="Biobase")
+```
+
+A further call to `vignette` with the name of the vignette will launch a PDF viewer:
+
+```{r, eval=FALSE}
+vignette("ExpressionSetIntroduction")
+```
+
+In addition, an HTML browser can be launched with links to the various vignettes of a package:
+
+
+```{r, eval=FALSE, tidy=FALSE}
+browseVignettes(package="Biobase")
+```
+88888888888888888888888888888888888888888888888888888888888
+
+
+## Bioconductor cheat sheet
+
+I am going to skip over most of this bit for now as it should serve as a reference for you as we get into more detail in the course. Thus the 'cheatsheet'. We won't cover all of the material covered in here either.
+
+Also useful are Kasper Daniel Hansen's [Bioconductor class notes](http://kasperdanielhansen.github.io/genbioconductor/).
+
+### Install
+
+For details go to http://bioconductor.org/install/
+
+```
+if (!requireNamespace("BiocManager"))
+    install.packages("BiocManager")
+BiocManager::install()
+BiocManager::install(c("package1","package2")
+BiocManager::valid() # are packages up to date?
+
+# what Bioc version is release right now?
+http://bioconductor.org/bioc-version
+# what Bioc versions are release/devel?
+http://bioconductor.org/js/versions.js
+```
+
+### help within R
+
+Simple help:
+
+```
+?functionName
+?"eSet-class" # classes need the '-class' on the end
+help(package="foo",help_type="html") # launch web browser help
+vignette("topic")
+browseVignettes(package="package") # show vignettes for the package
+```
+
+Help for advanced users:
+
+```
+functionName # prints source code
+getMethod(method,"class")  # prints source code for method
+selectMethod(method, "class") # will climb the inheritance to find method
+showMethods(classes="class") # show all methods for class
+methods(class="GRanges") # this will work in R >= 3.2
+?"functionName,class-method" # method help for S4 objects, e.g.:
+?"plotMA,data.frame-method" # from library(geneplotter)
+?"method.class" # method help for S3 objects e.g.:
+?"plot.lm"
+sessionInfo() # necessary info for getting help
+packageVersion("foo") # what version of package 
+```
+
+Bioconductor support website: https://support.bioconductor.org
+
+### debugging R
+You probably won't need this much as you won't be writing a lot of code and won't need it. Errors are often easier to debug without these tools.
+```
+traceback() # what steps lead to an error
+# debug a function
+debug(myFunction) # step line-by-line through the code in a function
+undebug(myFunction) # stop debugging
+debugonce(myFunction) # same as above, but doesn't need undebug()
+# also useful if you are writing code is to put
+# the function browser() inside a function at a critical point
+# this plus devtools::load_all() can be useful for programming
+# to jump in function on error:
+options(error=recover)
+# turn that behavior off:
+options(error=NULL)
+# debug, e.g. estimateSizeFactors from DESeq2...
+# debugging an S4 method is more difficult; this gives you a peek inside:
+trace(estimateSizeFactors, browser, exit=browser, signature="DESeqDataSet")
+```
+
+### Show package-specific methods for a class
+
+These two long strings of R code do approximately the same thing: obtain 
+the methods that operate on an object of a given class, which are defined
+in a specific package.
+
+```
+intersect(sapply(strsplit(as.character(methods(class="DESeqDataSet")), ","), `[`, 1), ls("package:DESeq2"))
+
+sub("Function: (.*) \\(package .*\\)","\\1",grep("Function",showMethods(classes="DESeqDataSet", where=getNamespace("DESeq2"), printTo=FALSE), value=TRUE))
+```
+These are so useful -- especially for Bioconductor where R objects have a lot of structure -- that I turned them into functions --
+
+```{r}
+getPackageClass = function(package,class){
+int = intersect(sapply(strsplit(as.character(methods(class=class)), ","),
+`[`, 1), ls(paste("package",package,sep = ":")))
+int
+}
+getPackageMethods = function(package,class){
+func = sub("Function: (.*) \\(package .*\\)","\\1",grep("Function",showMethods(classes=class,
+where=getNamespace(package), printTo=FALSE), value=TRUE))
+func
+}
+```
+
+### Annotations
+
+For AnnotationHub examples, see:
+
+https://www.bioconductor.org/help/workflows/annotation/Annotation_Resources
+
+The following is how to work with the organism database packages, and biomart.
+
+[AnnotationDbi](http://www.bioconductor.org/packages/release/bioc/html/AnnotationDbi.html)
+
+```
+# using one of the annotation packges
+library(AnnotationDbi)
+library(org.Hs.eg.db) # or, e.g. Homo.sapiens
+columns(org.Hs.eg.db)
+keytypes(org.Hs.eg.db)
+head(keys(org.Hs.eg.db, keytype="ENTREZID"))
+# returns a named character vector, see ?mapIds for multiVals options
+res <- mapIds(org.Hs.eg.db, keys=k, column="ENSEMBL", keytype="ENTREZID")
+
+# generates warning for 1:many mappings
+res <- select(org.Hs.eg.db, keys=k,
+  columns=c("ENTREZID","ENSEMBL","SYMBOL"),
+  keytype="ENTREZID")
+```
+
+[biomaRt](http://www.bioconductor.org/packages/release/bioc/html/biomaRt.html)
+
+```
+# map from one annotation to another using biomart
+library(biomaRt)
+m <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+map <- getBM(mart = m,
+  attributes = c("ensembl_gene_id", "entrezgene"),
+  filters = "ensembl_gene_id", 
+  values = some.ensembl.genes)
+```
+
+
+**Genomic ranges**
+
+[GenomicRanges](http://bioconductor.org/packages/release/bioc/html/GenomicRanges.html)
+
+```
+library(GenomicRanges)
+z <- GRanges("chr1",IRanges(1000001,1001000),strand="+")
+start(z)
+end(z)
+width(z)
+strand(z)
+mcols(z) # the 'metadata columns', any information stored alongside each range
+ranges(z) # gives the IRanges
+seqnames(z) # the chromosomes for each ranges
+seqlevels(z) # the possible chromosomes
+seqlengths(z) # the lengths for each chromosome
+```
+
+**Intra-range methods**
+
+Affects ranges independently
+
+function | description
+--- | ---
+shift | moves left/right
+narrow | narrows by relative position within range
+resize | resizes to width, fixing start for +, end for -
+flank | returns flanking ranges to the left +, or right -
+promoters | similar to flank
+restrict | restricts ranges to a start and end position
+trim | trims out of bound ranges
++/- | expands/contracts by adding/subtracting fixed amount
+* | zooms in (positive) or out (negative) by multiples
+
+**Inter-range methods**
+
+Affects ranges as a group
+
+function | description
+--- | ---
+range | one range, leftmost start to rightmost end
+reduce | cover all positions with only one range
+gaps | uncovered positions within range
+disjoin | breaks into discrete ranges based on original starts/ends
+
+### Nearest methods
+
+Given two sets of ranges, `x` and `subject`, for each range in `x`, returns...
+
+function | description
+--- | ---
+nearest | index of the nearest neighbor range in subject
+precede | index of the range in subject that is directly preceded by the range in x
+follow |index of the range in subject that is directly followed by the range in x
+distanceToNearest | distances to its nearest neighbor in subject (Hits object)
+distance | distances to nearest neighbor (integer vector)
+
+A Hits object can be accessed with `queryHits`, `subjectHits` and `mcols` if a distance is associated.
+
+**set methods**
+
+If `y` is a GRangesList, then use `punion`, etc. All functions have default `ignore.strand=FALSE`, so are strand specific.
+
+```
+union(x,y) 
+intersect(x,y)
+setdiff(x,y)
+```
+
+**Overlaps**
+
+```
+x %over% y  # logical vector of which x overlaps any in y
+fo <- findOverlaps(x,y) # returns a Hits object
+queryHits(fo)   # which in x
+subjectHits(fo) # which in y 
+```
+
+**Seqnames and seqlevels**
+
+[GenomicRanges](http://www.bioconductor.org/packages/release/bioc/html/GenomicRanges.html) and [GenomeInfoDb](http://www.bioconductor.org/packages/release/bioc/html/GenomeInfoDb.html)
+
+
+```
+gr.sub <- gr[seqlevels(gr) == "chr1"]
+seqlevelsStyle(x) <- "UCSC" # convert to 'chr1' style from "NCBI" style '1'
+```
+
+### Sequences
+
+[Biostrings](http://www.bioconductor.org/packages/release/bioc/html/Biostrings.html)
+
+see the [Biostrings Quick Overview PDF](http://www.bioconductor.org/packages/release/bioc/vignettes/Biostrings/inst/doc/BiostringsQuickOverview.pdf)
+
+For naming, see [cheat sheet for annotation](http://genomicsclass.github.io/book/pages/annoCheat.html)
+
+```
+library(BSgenome.Hsapiens.UCSC.hg19)
+dnastringset <- getSeq(Hsapiens, granges) # returns a DNAStringSet
+# also Views() for Bioconductor >= 3.1
+```
+
+```
+library(Biostrings)
+dnastringset <- readDNAStringSet("transcripts.fa")
+```
+
+```
+substr(dnastringset, 1, 10) # to character string
+subseq(dnastringset, 1, 10) # returns DNAStringSet
+Views(dnastringset, 1, 10) # lightweight views into object
+complement(dnastringset)
+reverseComplement(dnastringset)
+matchPattern("ACGTT", dnastring) # also countPattern, also works on Hsapiens/genome
+vmatchPattern("ACGTT", dnastringset) # also vcountPattern
+letterFrequecy(dnastringset, "CG") # how many C's or G's
+# also letterFrequencyInSlidingView
+alphabetFrequency(dnastringset, as.prob=TRUE)
+# also oligonucleotideFrequency, dinucleotideFrequency, trinucleotideFrequency
+# transcribe/translate for imitating biological processes
+```
+
+### Sequencing data
+
+[Rsamtools](http://www.bioconductor.org/packages/release/bioc/html/Rsamtools.html) `scanBam` returns lists of raw values from BAM files
+
+```
+library(Rsamtools)
+which <- GRanges("chr1",IRanges(1000001,1001000))
+what <- c("rname","strand","pos","qwidth","seq")
+param <- ScanBamParam(which=which, what=what)
+# for more BamFile functions/details see ?BamFile
+# yieldSize for chunk-wise access
+bamfile <- BamFile("/path/to/file.bam")
+reads <- scanBam(bamfile, param=param)
+res <- countBam(bamfile, param=param) 
+# for more sophisticated counting modes
+# see summarizeOverlaps() below
+
+# quickly check chromosome names
+seqinfo(BamFile("/path/to/file.bam"))
+
+# DNAStringSet is defined in the Biostrings package
+# see the Biostrings Quick Overview PDF
+dnastringset <- scanFa(fastaFile, param=granges)
+```
+
+[GenomicAlignments](http://www.bioconductor.org/packages/release/bioc/html/GenomicAlignments.html) returns Bioconductor objects (GRanges-based)
+
+```
+library(GenomicAlignments)
+ga <- readGAlignments(bamfile) # single-end
+ga <- readGAlignmentPairs(bamfile) # paired-end
+```
+
+### Transcript databases 
+
+[GenomicFeatures](http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html)
+
+```
+# get a transcript database, which stores exon, trancript, and gene information
+library(GenomicFeatures)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+
+# or build a txdb from GTF file (e.g. downloadable from Ensembl FTP site)
+txdb <- makeTranscriptDbFromGFF("file.GTF", format="gtf")
+
+# or build a txdb from Biomart (however, not as easy to reproduce later)
+txdb <- makeTranscriptDbFromBiomart(biomart = "ensembl", dataset = "hsapiens_gene_ensembl")
+
+# in Bioconductor >= 3.1, also makeTxDbFromGRanges
+
+# saving and loading
+saveDb(txdb, file="txdb.sqlite")
+loadDb("txdb.sqlite")
+
+# extracting information from txdb
+g <- genes(txdb) # GRanges, just start to end, no exon/intron information
+tx <- transcripts(txdb) # GRanges, similar to genes()
+e <- exons(txdb) # GRanges for each exon
+ebg <- exonsBy(txdb, by="gene") # exons grouped in a GRangesList by gene
+ebt <- exonsBy(txdb, by="tx") # similar but by transcript
+
+# then get the transcript sequence
+txSeq <- extractTranscriptSeqs(Hsapiens, ebt)
+```
+
+**Summarizing information across ranges and experiments**
+
+The SummarizedExperiment is a storage class for high-dimensional information tied to the same GRanges or GRangesList across experiments (e.g., read counts in exons for each gene).
+
+```
+library(GenomicAlignments)
+fls <- list.files(pattern="*.bam$")
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+ebg <- exonsBy(txdb, by="gene")
+# see yieldSize argument for restricting memory
+bf <- BamFileList(fls)
+library(BiocParallel)
+register(MulticoreParam(4))
+# lots of options in the man page
+# singleEnd, ignore.strand, inter.features, fragments, etc.
+se <- summarizeOverlaps(ebg, bf)
+
+# operations on SummarizedExperiment
+assay(se) # the counts from summarizeOverlaps
+colData(se)
+rowRanges(se)
+```
+
+Another fast Bioconductor read counting method is featureCounts in 
+[Rsubread](http://www.bioconductor.org/packages/release/bioc/html/Rsubread.html).
+
+```
+library(Rsubread)
+res <- featureCounts(files, annot.ext="annotation.gtf",
+  isGTFAnnotationFile=TRUE,
+  GTF.featureType="exon",
+  GTF.attrType="gene_id")
+res$counts
+```
+
+### RNA-seq gene-wise analysis
+
+[DESeq2](http://www.bioconductor.org/packages/release/bioc/html/DESeq2.html)
+
+My preferred pipeline for DESeq2 users is to start with a lightweight transcript
+abundance quantifier such as [Salmon](https://combine-lab.github.io/salmon/)
+and to use [tximport](http://bioconductor.org/packages/tximport), followed
+by `DESeqDataSetFromTximport`.
+
+Here, `coldata` is a *data.frame* with `group` as a column.
+
+```
+library(DESeq2)
+# from tximport
+dds <- DESeqDataSetFromTximport(txi, coldata, ~ group)
+# from SummarizedExperiment
+dds <- DESeqDataSet(se, ~ group)
+# from count matrix
+dds <- DESeqDataSetFromMatrix(counts, coldata, ~ group)
+# minimal filtering helps keep things fast 
+# one can set 'n' to e.g. min(5, smallest group sample size)
+keep <- rowSums(counts(dds) >= 10) >= n 
+dds <- dds[keep,]
+dds <- DESeq(dds)
+res <- results(dds) # no shrinkage of LFC, or:
+res <- lfcShrink(dds, coef = 2, type="apeglm") # shrink LFCs
+```
+
+[edgeR](http://www.bioconductor.org/packages/release/bioc/html/edgeR.html)
+
+```
+# this chunk from the Quick start in the edgeR User Guide
+library(edgeR) 
+y <- DGEList(counts=counts,group=group)
+keep <- filterByExpr(y)
+y <- y[keep,]
+y <- calcNormFactors(y)
+design <- model.matrix(~group)
+y <- estimateDisp(y,design)
+fit <- glmFit(y,design)
+lrt <- glmLRT(fit)
+topTags(lrt)
+# or use the QL methods:
+qlfit <- glmQLFit(y,design)
+qlft <- glmQLFTest(qlfit)
+topTags(qlft)
+```
+
+[limma-voom](http://www.bioconductor.org/packages/release/bioc/html/limma.html)
+
+```
+library(limma)
+design <- model.matrix(~ group)
+y <- DGEList(counts)
+keep <- filterByExpr(y)
+y <- y[keep,]
+y <- calcNormFactors(y)
+v <- voom(y,design)
+fit <- lmFit(v,design)
+fit <- eBayes(fit)
+topTable(fit)
+```
+
+[Many more RNA-seq packages](http://www.bioconductor.org/packages/release/BiocViews.html#___RNASeq)
+
+**Expression set**
+
+```
+library(Biobase)
+data(sample.ExpressionSet)
+e <- sample.ExpressionSet
+exprs(e)
+pData(e)
+fData(e)
+```
+
+**Get GEO dataset**
+
+```
+library(GEOquery)
+e <- getGEO("GSE9514")
+```
+
+**Microarray analysis**
+
+```
+library(affy)
+library(limma)
+phenoData <- read.AnnotatedDataFrame("sample-description.csv")
+eset <- justRMA("/celfile-directory", phenoData=phenoData)
+design <- model.matrix(~ Disease, pData(eset))
+fit <- lmFit(eset, design)
+efit <- eBayes(fit)
+topTable(efit, coef=2)
+```
+
+
+
+

@@ -1,0 +1,441 @@
+---
+title: 'Genomic annotation in Bioconductor'
+author: "Vince"
+date: "March 19, 2015"
+output:
+  pdf_document: default
+  html_document: default
+layout: page
+toc: yes
+toc_depth: 2
+---
+
+# Annotation resources 
+```{r options, echo=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
+
+```
+
+```{r setup,echo=FALSE,results="hide"}
+suppressWarnings({
+suppressMessages({
+suppressPackageStartupMessages({
+library(BiocStyle)
+library(AnnotationDbi)
+library(BSgenome.Hsapiens.NCBI.GRCh38)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(Biostrings)
+library(GenomicRanges)
+library(IRanges)
+library(Homo.sapiens)
+library(grid)
+library(png)
+library(KEGGREST)
+library(GO.db)
+library(org.Hs.eg.db)
+library(DBI)
+library(ensembldb)
+library(rols)
+library(EnsDb.Hsapiens.v75)
+library(GSEABase)
+library(ph525x)
+})
+})
+})
+```
+
+
+In this document we will review Bioconductor's facilities for
+handling and annotating genomic sequence.  We'll look at
+reference genomic sequence, transcripts and genes, and
+conclude with gene pathways.  Keep in mind that our ultimate aim
+is to use annotation information to help produce reliable
+interpretations of genomic experiments.  A basic objective of
+Bioconductor is to make it easy to incorporate
+information on genome structure and function 
+into statistical analysis procedures.
+
+<a name="threelev"></a>
+
+Contents
+## The OrgDb Gene annotation maps
+
+Packages named org.*.eg.db collect information at the gene level
+with links to location, protein product identifiers, KEGG pathway and
+GO terms, PMIDs of papers mentioning genes, and to
+identifiers for other annotation resources.
+
+```{r lkor}
+library(org.Hs.eg.db)
+keytypes(org.Hs.eg.db) # columns() gives same answer
+```
+```{r lkt}
+head(select(org.Hs.eg.db, keys="ORMDL3", keytype="SYMBOL", 
+   columns="PMID"))
+```
+
+<a name="genesets"></a>
+## AnnotationDBO
+**mapIds**
+
+```{r}
+BiocManager::available("^org\\.")
+```
+The regular expression "^org\\.") insists that the package names starts with org ("^org") followed by a literal period rather than a wild-card representing any letter ("\\.").
+
+In addition to these packages, many org resources are available from AnnotationHub, described below
+```{r}
+library(AnnotationHub)
+query(AnnotationHub(), "^org\\.")
+```
+The naming convention of org objects uses a two-letter code to represent species, e.g., Hs is Homo sapiens followed by the central identifier used to map to and from other symbols; for org.Hs.eg.db, the central identifier is the Entrez gene identifier, and to map from, say HGNC Symbol to Ensembl identifier, a map must exist between the gene symbol and the Entrez identifier, and then from the Entrez identifier to the Ensembl identifier.
+
+Many additional org packages are available on AnnotationHub, as mentioned briefly below.
+
+library(org.Hs.eg.db)
+We can discover available keytypes() for querying the database, and columns() to map to, e.g.,
+
+
+```{r}
+head(keys(org.Hs.eg.db))
+```
+## [1] "1"  "2"  "3"  "9"  "10" "11"
+Here are a handful of ENTREZID keys
+
+```{r}
+eid <- sample(keys(org.Hs.eg.db), 10)
+```
+Two main functions are `select()` and `mapIds()`. `mapIds()` is more focused. It guarantees a one-to-one mapping between keys a single selected column. By defaul, if a key maps to multiple values, then the ‘first’ value returned by the database is used. The return value is a named vector; the 1:1 mapping between query and return value makes this function particularly useful in pipelines where a single mapping must occur.
+
+```{r}
+mapIds(org.Hs.eg.db, keys = eid, column = "SYMBOL", keytype = "ENTREZID")
+```
+I like to spell these out:
+mapIds(Orgdb, keys = selectheserecord, column = retrievetheserecords,keytype=keytypeofseiectedrecord) 
+
+**select**
+`select()` is more general, returning a data.frame of keys, plus one or more columns. If a key maps to multiple values, then multiple rows are returned.
+
+```{r}
+map <- select(org.Hs.eg.db, eid, c("SYMBOL", "GO"), "ENTREZID")
+```
+anno <- `select`(orgdb, keys=selectheserecords,columns=c(retrievetheserecords), keytype=keytypeofseiectedrecord) 
+               
+## GO.db
+go_keys <- head(keys(GO.db))
+`select`(GO.db,
+       keys = go_keys,
+       columns=c("GOID", "TERM", "ONTOLOGY"),
+       keytype="GOID")
+               
+## Transcript annotations: TxDb objects
+
+`TxDb` packages contain information about gene models (exon, gene, transcript coordinates). There are a number of TxDb packages available to install
+
+```{r}              
+BiocManager::available("^TxDb") %>%
+    tibble::enframe(name = NULL)
+```
+and to download from AnnotationHub  
+
+```{r}     
+query(AnnotationHub(), "^TxDb\\.")
+```   
+Here we load the TxDb object containing gene models for Homo sapiens using annotations provided by UCSC for the hg38 genome build, using the knownGene annotation track.
+
+```{r}              
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+columns(TxDb.Hsapiens.UCSC.hg19.knownGene)
+```
+** `exons()`, `transcripts()`, `genes()`***
+The coordinates of annotated exons can be extracted as a GRanges object
+```{r} 
+exons(TxDb.Hsapiens.UCSC.hg19.knownGene)
+```
+Additional information is also present in the database, for instance the GENEID (Entrez gene id for these TxDb)
+```{r} 
+ex <- exons(TxDb.Hsapiens.UCSC.hg19.knownGene, columns = "GENEID")
+ex
+```
+Note that the object reports “595 sequences”; this is because the exons include both standard chromosomes and partially assembled contigs. Use `keepStandardChromosomes()` to update the object to contain only exons found on the ‘standard’ chromomes; the pruning.mode= argument determines whether sequence names that are ‘in use’ (have exons associated with them) can be dropped.
+
+```{r}
+std_ex <- keepStandardChromosomes(ex, pruning.mode="coarse")
+std_ex
+```
+It is then possible to ask all sorts of question, e.g., the number of exons on each chromosome
+
+```{r}
+table(seqnames(std_ex))
+```
+or the identity the exons with more than 10000 nucleotides.
+```{r}
+std_ex[width(std_ex) > 10000]
+```
+and of course more scientifically relevant questions.
+
+## AnnotationHub
+The `r Biocpkg("AnnotationHub")` package can be used to obtain `GRanges` or other suitably designed containers for institutionally curated annotation.
+`AnnotationHub` provides a resource of annotations that are available without requiring an annotation package. 
+
+```{r}
+library(AnnotationHub)
+ah <- AnnotationHub()
+```
+
+One example of such annotations are org-style data resources for less-model organisms. Discover available resources using the flexible query() command.
+
+```{r}
+query(ah, "^org\\.")
+```
+Find out more about a particular resource using [ to select just that resource, or use `mcols()` on a subset of resources. identifier, e.g.,
+
+```{r}
+
+ah["AH102598"]
+```
+
+Retrieve and use a resource by using `[[` with the corresponding
+```{r}
+org <- ah[["AH102598"]]
+
+org
+```
+Determine the central key, and the columns that can be mapped between
+```{r}
+chooseCentralOrgPkgSymbol(org)
+
+columns(org)
+```
+Here are some Entrez identifiers, and their corresponding symbols for Anopheles gambiae, either allowing for 1:many maps (select()) or enforcing 1:1 maps. We use `AnnotationDbi::select()` to disambiguate between the `select()` generic defined in `AnnotationDbi` and the `select()` generic defined in `dplyr`: theses methods have incompatible signatures and ‘contracts’, and so must be invoked in a way that resolves our intention explicitly.
+
+```{r}
+library(dplyr)    # for `%>%`
+eid <- head(keys(org))
+
+AnnotationDbi::select(org, eid, "SYMBOL", "ENTREZID")
+
+eid %>%
+    mapIds(x = org, "SYMBOL", "ENTREZID") %>%
+    tibble::enframe("ENTREZID", "SYMBOL")
+```
+##Ensembl GTF and FASTA files for TxDb gene models and sequence queries
+
+Bioconductor represents gene models using ‘transcript’ databases. These are available via packages such as `TxDb.Hsapiens.UCSC.hg19.knownGene` or can be constructed using functions such as `GenomicFeatures::makeTxDbFromBiomart()`.
+
+AnnotationHub provides an easy way to work with gene models published by Ensembl. Let’s see what Ensembl’s Release-94 has in terms of data for pufferfish, Takifugu rubripes.
+
+```{r}
+query(ah, c("Takifugu", "release-94"))
+```
+We see that there is a GTF file descrbing gene models, as well as various DNA sequences. Let’s retrieve the GTF and top-level DNA sequence files. The GTF file is imported as a `GRanges` instance, the DNA sequence as a twobit file.
+
+```{r}
+gtf <- ah[["AH64858"]]
+
+dna <- ah[["AH66116"]]
+
+head(gtf, 3)
+dna
+head(seqlevels(dna))
+```
+Let’s identify the 25 longest DNA sequences, and keep just the annotations on these scaffolds.
+
+```{r}
+keep <- names(tail(sort(seqlengths(dna)), 25))
+gtf_subset <- gtf[seqnames(gtf) %in% keep]
+```
+It is trivial to make a `TxDb` instance of this subset (or of the entire gtf)
+
+```{r}
+library(GenomicFeatures)         # for makeTxDbFromGRanges
+txdb <- makeTxDbFromGRanges(gtf_subset)
+```
+
+and to use that in conjunction with the DNA sequences, e.g., to find exon sequences of all annotated genes.
+
+```{r}
+library(Rsamtools)               # for getSeq,FaFile-method
+exons <- exons(txdb)
+length(exons)
+getSeq(dna, exons)
+
+```
+There is a one-to-one mapping between the genomic ranges contained in exons and the DNA sequences returned by `getSeq()`.
+
+Some difficulties arise when working with this partly assembled genome that require more advanced `GenomicRanges` skills, see the `GenomicRanges` vignettes.
+
+Finally, there are a number of experimental data
+objects available through `AnnotationHub`. For example, related to the HepG2 cell line.
+```{r doqueah}
+query(ah, "HepG2")
+```
+
+The `query` method can take a vector of filtering strings.
+To limit response to annotation resources
+addressing the histone H4K5, simply add that tag:
+
+```{r doonek}
+query(ah, c("HepG2", "H4K5"))
+```
+## ENSEMBL annotation
+
+From the [Ensembl home page](http://www.ensembl.org/index.html):
+"Ensembl creates, integrates and distributes reference datasets and 
+analysis tools that enable genomics".  This project is lodged
+at the [European Molecular Biology Lab](https://www.ebi.ac.uk/),
+which has been supportive of general interoperation of
+annotation resources with 
+Bioconductor.
+
+The `r Biocpkg("ensembldb")` package includes a vignette
+with the following commentary:
+
+The `ensembldb` package provides functions to create and use 
+transcript centric annotation databases/packages. The annotation for the 
+databases are 
+directly fetched from Ensembl 1 using their Perl 
+API. The functionality and data is similar to 
+that of the `TxDb` packages from the  `GenomicFeature`s 
+package, but, in addition to retrieve all gene/transcript models 
+and annotations from the database, the 
+ensembldb package provides also a filter framework allowing 
+to retrieve annotations for specific entries like 
+genes encoded on a chromosome region or transcript 
+models of lincRNA genes. From version 1.7 on, 
+EnsDb databases created by the ensembldb package contain 
+also protein annotation data 
+(see [Section 11](http://bioconductor.org/packages/release/bioc/vignettes/ensembldb/inst/doc/ensembldb.html#org35014ed) for 
+the database layout and an 
+overview of available attributes/columns). For more information 
+on the use of the protein annotations refer to the proteins vignette.
+
+```{r lkensss}
+library(ensembldb)
+library(EnsDb.Hsapiens.v75)
+names(listTables(EnsDb.Hsapiens.v75))
+```
+
+As an illustration:
+```{r lktxed}
+edb = EnsDb.Hsapiens.v75  # abbreviate
+txs <- transcripts(edb, filter = GeneNameFilter("ZBTB16"),
+                   columns = c("protein_id", "uniprot_id", "tx_biotype"))
+txs
+```
+
+<a name="orgdb"></a>
+
+## Resources for gene sets and pathways
+
+<a name="geneont"></a>
+
+## Gene Ontology
+
+[Gene Ontology](http://www.geneontology.org) (GO) is
+a widely used structured vocabulary that organizes terms relevant to
+the roles of genes and gene products in
+- biological processes,
+- molecular functions, and
+- cellular components.
+The vocabulary itself is intended to be relevant for all organisms.
+It takes the form of a directed acyclic graph, with terms as
+nodes and 'is-a' and 'part-of' relationships comprising
+most of the links.
+
+The *annotation* that links organism-specific genes to terms
+in gene ontology is separate from the vocabulary itself, and
+involves different types of evidence.  These are recorded
+in Bioconductor annotation packages.
+
+We have immediate access to the GO vocabulary
+with the `GO.db` package.
+```{r lkgo1}
+library(GO.db)
+GO.db # metadata
+```
+
+The keys/columns/select functionality of
+`AnnotationDbi` is easy to use for mappings between ids,
+terms and definitions.
+
+```{r lkgo2}
+k5 = keys(GO.db)[1:5]
+cgo = columns(GO.db)
+AnnotationDbi::select(GO.db, keys=k5, columns=cgo[1:3])
+```
+
+The graphical structure of the vocabulary is encoded in
+tables in a SQLite database.  We can query this using
+the `RSQLite` interface.
+```{r lkgo3}
+library(DBI)
+con = GO_dbconn()
+dbListTables(con)
+```
+
+The following query reveals some internal identifiers:
+```{r lkids}
+dbGetQuery(con, "select _id, go_id, term from go_term limit 5")
+```
+We can trace the `mitochondrion inheritance` term to
+parent and grandparent terms:
+
+```{r lkpath}
+dbGetQuery(con, "select * from go_bp_parents where _id=30")
+dbGetQuery(con, "select _id, go_id, term from go_term where _id=26616")
+dbGetQuery(con, "select * from go_bp_parents where _id=26616")
+dbGetQuery(con, "select _id, go_id, term from go_term where _id=5932")
+```
+It makes sense to regard "mitochondrion inheritance" as a conceptual
+refinement of processes "mitochondrion distribution", and "organelle inheritance",
+the two terms that are regarded as parents in this database scheme.
+
+The entire database schema can be viewed with `GO_dbschema()`.
+
+<a name="kegg"></a>
+
+## KEGG: Kyoto Encyclopedia of Genes and Genomes
+
+KEGG is a database resource for understanding high-level functions and utilities of the biological system, such as the cell, the organism and the ecosystem, from molecular-level information, especially large-scale molecular datasets generated by genome sequencing and other high-throughput experimental technologies.
+
+KEGGREST allows access to the KEGG REST API. Since KEGG disabled the KEGG SOAP server on December 31, 2012 (which means the KEGGSOAP package will no longer work), KEGGREST serves as a replacement.
+
+The interface to KEGGREST is simpler and in some ways more powerful than KEGGSOAP; however, not all the functionality that was available through the SOAP API has been exposed in the REST API. If and when more functionality is exposed on the server side, this package will be updated to take advantage of it.
+
+Overview
+The KEGG REST API is built on some simple operations: info, list, find, get, conv, and link. The corresponding R functions in KEGGREST are: keggInfo(), keggList(), keggFind(), keggGet(), keggConv, and keggLink().
+
+KEGGREST, requires an active internet connection. A very useful query resolution facility is based on Entrez identifiers. The Entrez ID for BRCA2 is 675.  We'll perform a general query.
+```{r dokr}
+library(KEGGREST)
+brca2K = keggGet("hsa:675")
+names(brca2K[[1]])
+```
+
+The list of genes making up a pathway model 
+can be obtained with another keggGet:
+```{r dolkp}
+brpat = keggGet("path:hsa05212")
+names(brpat[[1]])
+brpat[[1]]$GENE[seq(1,132,2)] # entrez gene ids
+```
+
+There is much to explore, and the KEGGREST package vignette provides
+examples.  As a last illustration, we can acquire a static image of
+the (human) pancreatic cancer pathway in which BRCA2 is implicated.
+
+```{r getp,fig=TRUE}
+library(png)
+library(grid)
+brpng = keggGet("hsa05212", "image")
+grid.raster(brpng)
+```
+
+
+## Summary
+
+We have covered a lot of material, from the nucleotide to the
+pathway level.  The Annotation "view" at bioconductor.org
+can always be visited to survey existing resources.

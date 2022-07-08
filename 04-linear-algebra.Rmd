@@ -1,0 +1,792 @@
+---
+title: "Linear Algebra"
+author: "Rafa"
+date: "January 31, 2015"
+output: html_document
+layout: page
+
+---
+
+```{r options, echo=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
+```
+# Linear Algebra
+## Matrix Notation
+
+Here we introduce the basics of matrix notation. Initially this may seem over-complicated, but once we discuss examples, you will appreciate the power of using this notation to both explain and derive solutions, as well as implement them as R code. 
+
+**The language of linear models**
+
+Linear algebra notation actually simplifies the mathematical descriptions and manipulations of linear models, as well as coding in R. We will discuss the basics of this notation and then show some examples in R.
+
+The main point of this entire exercise is to show how we can write the models above using matrix notation, and then explain how this is useful for solving the least squares equation. We start by simply defining notation and matrix multiplication, but bear with us since we eventually get back to the practical application.
+
+**Solving Systems of Equations**
+
+Linear algebra was created by mathematicians to solve systems of linear equations such as this:
+
+$$
+\begin{aligned}
+a + b + c &= 6\\
+3a - 2b + c &= 2\\
+2a + b  - c &= 1
+\end{aligned}
+$$
+
+It provides very useful machinery to solve these problems generally. We will learn how we can write and solve this system using matrix algebra notation:
+
+$$ 
+\,
+\begin{pmatrix}
+1&1&1\\
+3&-2&1\\
+2&1&-1
+\end{pmatrix}
+\begin{pmatrix}
+a\\
+b\\
+c
+\end{pmatrix} =
+\begin{pmatrix}
+6\\
+2\\
+1
+\end{pmatrix}
+\implies
+\begin{pmatrix}
+a\\
+b\\
+c
+\end{pmatrix} =
+\begin{pmatrix}
+1&1&1\\
+3&-2&1\\
+2&1&-1
+\end{pmatrix}^{-1}
+\begin{pmatrix}
+6\\
+2\\
+1
+\end{pmatrix}
+$$
+
+This section explains the notation used above. It turns out that we can borrow this notation for linear models in statistics as well.
+
+**Vectors, Matrices, and Scalars**
+
+In the falling object, father-son heights, and mouse weight examples, the random variables associated with the data were represented by $Y_1,\dots,Y_n$. We can think of this as a vector. In fact, in R we are already doing this:
+
+```{r,message=FALSE}
+data(father.son,package="UsingR")
+y=father.son$fheight
+head(y)
+```
+In math we can also use just one symbol. We usually use bold to distinguish it from the individual entries:
+
+$$ \mathbf{Y} = \begin{pmatrix}
+Y_1\\\
+Y_2\\\
+\vdots\\\
+Y_N
+\end{pmatrix}
+$$
+
+
+For reasons that will soon become clear, default representation of data vectors have dimension $N\times 1$ as opposed to $1 \times N$ .
+
+Here we don't always use bold because normally one can tell what is a matrix from the context.
+
+Similarly, we can use math notation to represent the covariates or predictors. In a case with two predictors we can represent them like this:
+
+$$ 
+\mathbf{X}_1 = \begin{pmatrix}
+x_{1,1}\\
+\vdots\\
+x_{N,1}
+\end{pmatrix} \mbox{ and }
+\mathbf{X}_2 = \begin{pmatrix}
+x_{1,2}\\
+\vdots\\
+x_{N,2}
+\end{pmatrix}
+$$
+
+Note that for the falling object example $x_{1,1}= t_i$ and $x_{i,1}=t_i^2$ with $t_i$ the time of the i-th observation. Also, keep in mind that vectors can be thought of as $N\times 1$ matrices.
+
+For reasons that will soon become apparent, it is convenient to represent these in matrices:
+
+$$ 
+\mathbf{X} = [ \mathbf{X}_1 \mathbf{X}_2 ] = \begin{pmatrix}
+x_{1,1}&x_{1,2}\\
+\vdots\\
+x_{N,1}&x_{N,2}
+\end{pmatrix}
+$$
+
+This matrix has dimension $N \times 2$. We can create this matrix in R this way:
+
+```{r}
+n <- 25
+tt <- seq(0,3.4,len=n) ##time in secs, t is a base function
+X <- cbind(X1=tt,X2=tt^2)
+head(X)
+dim(X)
+```
+
+We can also use this notation to denote an arbitrary number of covariates with the following $N\times p$ matrix:
+
+$$
+\mathbf{X} = \begin{pmatrix}
+  x_{1,1}&\dots & x_{1,p} \\
+  x_{2,1}&\dots & x_{2,p} \\
+   & \vdots & \\
+  x_{N,1}&\dots & x_{N,p} 
+  \end{pmatrix}
+$$
+
+Just as an example, we show you how to make one in R now using `matrix` instead of `cbind`:
+
+```{r}
+N <- 100; p <- 5
+X <- matrix(1:(N*p),N,p)
+head(X)
+dim(X)
+```
+
+By default, the matrices are filled column by column. The `byrow=TRUE` argument lets us change that to row by row:
+
+```{r}
+N <- 100; p <- 5
+X <- matrix(1:(N*p),N,p,byrow=TRUE)
+head(X)
+```
+
+Finally, we define a scalar. A scalar is just a number, which we call a scalar because we want to distinguish it from vectors and matrices. We usually use lower case and don't bold. In the next section, we will understand why we make this distinction.
+
+88888888888888888888888888888888888888888888888888888888888888
+
+## Matrix Operations
+
+In a previous section, we motivated the use of matrix algebra with this system of equations:
+
+
+$$
+\begin{aligned}
+a + b + c &= 6\\
+3a - 2b + c &= 2\\
+2a + b  - c &= 1
+\end{aligned}
+$$
+
+We described how this system can be rewritten and solved using matrix algebra:
+
+$$
+\,
+\begin{pmatrix}
+1&1&1\\
+3&-2&1\\
+2&1&-1
+\end{pmatrix}
+\begin{pmatrix}
+a\\
+b\\
+c
+\end{pmatrix} =
+\begin{pmatrix}
+6\\
+2\\
+1
+\end{pmatrix}
+\implies
+\begin{pmatrix}
+a\\
+b\\
+c
+\end{pmatrix}=
+\begin{pmatrix}
+1&1&1\\
+3&-2&1\\
+2&1&-1
+\end{pmatrix}^{-1}
+\begin{pmatrix}
+6\\
+2\\
+1
+\end{pmatrix}
+$$
+
+Having described matrix notation, we will explain the operation we perform with them. For example, above we have matrix multiplication and we also have a symbol representing the inverse of a matrix. The importance of these operations and others will become clear once we present specific examples related to data analysis.
+ 
+
+**Multiplying by a scalar**
+
+We start with one of the simplest operations: scalar multiplication. If $a$ is scalar and $\mathbf{X}$ is a matrix, then:
+
+
+$$
+\mathbf{X} = \begin{pmatrix}
+  x_{1,1}&\dots & x_{1,p} \\
+  x_{2,1}&\dots & x_{2,p} \\
+   & \vdots & \\
+  x_{N,1}&\dots & x_{N,p} 
+  \end{pmatrix} \implies
+a \mathbf{X} = 
+\begin{pmatrix}
+  a x_{1,1} & \dots & a x_{1,p}\\
+  a x_{2,1}&\dots & a x_{2,p} \\
+  & \vdots & \\
+  a x_{N,1} & \dots & a  x_{N,p}
+\end{pmatrix}
+$$
+
+R automatically follows this rule when we multiply a number by a matrix using `*`:
+
+```{r}
+X <- matrix(1:12,4,3)
+print(X)
+a <- 2
+print(a*X)
+```
+
+
+**The transpose**
+
+The transpose is an operation that simply changes columns to rows. We use a $\top$ to denote a transpose. The technical definition is as follows: if X is as we defined it above, here is the transpose which will be $p\times N$:
+
+
+$$
+\mathbf{X} = \begin{pmatrix}
+  x_{1,1}&\dots & x_{1,p} \\
+  x_{2,1}&\dots & x_{2,p} \\
+   & \vdots & \\
+  x_{N,1}&\dots & x_{N,p} 
+  \end{pmatrix} \implies
+\mathbf{X}^\top = \begin{pmatrix}
+  x_{1,1}&\dots & x_{p,1} \\
+  x_{1,2}&\dots & x_{p,2} \\
+   & \vdots & \\
+  x_{1,N}&\dots & x_{p,N} 
+  \end{pmatrix}
+$$
+
+In R we simply use `t`:
+
+```{r}
+X <- matrix(1:12,4,3)
+X
+t(X)
+```
+
+**Matrix multiplication**
+
+We start by describing the matrix multiplication shown in the original system of equations example:
+
+$$
+\begin{aligned}
+a + b + c &=6\\
+3a - 2b + c &= 2\\
+2a + b  - c &= 1
+\end{aligned}
+$$
+
+What we are doing is multiplying the rows of the first matrix by the columns of the second. Since the second matrix only has one column, we perform this multiplication by doing the following:
+
+$$
+\,
+\begin{pmatrix}
+1&1&1\\
+3&-2&1\\
+2&1&-1
+\end{pmatrix}
+\begin{pmatrix}
+a\\
+b\\
+c
+\end{pmatrix}=
+\begin{pmatrix}
+a + b + c \\
+3a - 2b + c \\
+2a + b  - c 
+\end{pmatrix}
+$$
+
+Here is a simple example. We can check to see if `abc=c(3,2,1)` is a solution:
+
+```{r}
+X  <- matrix(c(1,3,2,1,-2,1,1,1,-1),3,3)
+abc <- c(3,2,1) #use as an example
+rbind( sum(X[1,]*abc), sum(X[2,]*abc), sum(X[3,]*abc))
+```
+
+We can use the `%*%` to perform the matrix multiplication and make this much more compact:
+
+```{r}
+X%*%abc
+```
+
+
+We can see that `c(3,2,1)` is not a solution as the answer here is not the required `c(6,2,1)`.
+
+To get the solution, we will need to invert the matrix on the left, a concept we learn about below.
+
+Here is the general definition of matrix multiplication of matrices $A$ and $X$:
+
+$$
+\mathbf{AX} = \begin{pmatrix}
+  a_{1,1} & a_{1,2} & \dots & a_{1,N}\\
+  a_{2,1} & a_{2,2} & \dots & a_{2,N}\\
+  & & \vdots & \\
+  a_{M,1} & a_{M,2} & \dots & a_{M,N}
+\end{pmatrix}
+\begin{pmatrix}
+  x_{1,1}&\dots & x_{1,p} \\
+  x_{2,1}&\dots & x_{2,p} \\
+   & \vdots & \\
+  x_{N,1}&\dots & x_{N,p} 
+  \end{pmatrix}
+$$
+  
+$$  = \begin{pmatrix}
+  \sum_{i=1}^N a_{1,i} x_{i,1} & \dots & \sum_{i=1}^N a_{1,i} x_{i,p}\\
+  & \vdots & \\
+  \sum_{i=1}^N a_{M,i} x_{i,1} & \dots & \sum_{i=1}^N a_{M,i} x_{i,p}
+\end{pmatrix}
+$$
+
+You can only take the product if the number of columns of the first matrix $A$ equals the number of rows of the second one $X$. Also, the final matrix has the same row numbers as the first $A$ and the same column numbers as the second $X$. 
+After you study the example below, you may want to come back and re-read the sections above.
+
+**The identity matrix**
+
+The identity matrix is analogous to the number 1: if you multiply the identity matrix by another matrix, you get the same matrix. For this to happen, we need it to be like this:
+
+$$
+\mathbf{I} = \begin{pmatrix}
+1&0&0&\dots&0&0\\
+0&1&0&\dots&0&0\\
+0&0&1&\dots&0&0\\
+\vdots &\vdots & \vdots&\ddots&\vdots&\vdots\\
+0&0&0&\dots&1&0\\
+0&0&0&\dots&0&1
+\end{pmatrix}
+$$
+
+By this definition, the identity always has to have the same number of rows as columns or be what we call a square matrix.
+
+If you follow the matrix multiplication rule above, you notice this works out:
+
+$$
+\mathbf{XI} = 
+\begin{pmatrix}
+   x_{1,1} & \dots &  x_{1,p}\\
+  & \vdots & \\
+   x_{N,1} & \dots &   x_{N,p}
+\end{pmatrix}
+\begin{pmatrix}
+1&0&0&\dots&0&0\\
+0&1&0&\dots&0&0\\
+0&0&1&\dots&0&0\\
+ & & &\vdots& &\\
+0&0&0&\dots&1&0\\
+0&0&0&\dots&0&1
+\end{pmatrix} = 
+\begin{pmatrix}
+   x_{1,1} & \dots &  x_{1,p}\\
+  & \vdots & \\
+   x_{N,1} & \dots & x_{N,p}
+\end{pmatrix}
+$$
+
+
+In R you can form an identity matrix this way:
+```{r}
+n <- 5 #pick dimensions
+diag(n)
+```
+**The inverse**
+
+The inverse of matrix $X$, denoted with $X^{-1}$, has the property that, when multiplied, gives you the identity $X^{-1}X=I$. Of course, not all matrices have inverses. For example, a $2\times 2$ matrix with 1s in all its entries does not have an inverse. 
+
+As we will see when we get to the section on applications to linear models, being able to compute the inverse of a matrix is quite useful. A very convenient aspect of R is that it includes a predefined function `solve` to do this. Here is how we would use it to solve the linear of equations:
+
+```{r}
+X <- matrix(c(1,3,2,1,-2,1,1,1,-1),3,3)
+y <- matrix(c(6,2,1),3,1)
+solve(X)%*%y #equivalent to solve(X,y)
+```
+
+Please note that `solve` is a function that should be used with caution as it is not generally numerically stable. We explain this in much more detail in the QR factorization section. 
+
+88888888888888888888888888888888888888888888888888888888888888
+
+
+## Matrix Algebra
+
+Now we are ready to see how matrix algebra can be useful when analyzing data. We start with some simple examples and eventually arrive at the main one: how to write linear models with matrix algebra notation and solve the least squares problem.
+
+
+**The average**
+
+To compute the sample average and variance of our data, we use these formulas $\bar{Y}=\frac{1}{N} Y_i$ and $\mbox{var}(Y)=\frac{1}{N} \sum_{i=1}^N (Y_i - \bar{Y})^2$. We can represent these with matrix multiplication. First, define this $N \times 1$ matrix made just of 1s:
+
+$$
+A=\begin{pmatrix}
+1\\
+1\\
+\vdots\\
+1
+\end{pmatrix}
+$$
+
+This implies that:
+
+$$
+\frac{1}{N}
+\mathbf{A}^\top Y = \frac{1}{N}
+\begin{pmatrix}1&1&\dots&1\end{pmatrix}
+\begin{pmatrix}
+Y_1\\
+Y_2\\
+\vdots\\
+Y_N
+\end{pmatrix}=
+\frac{1}{N} \sum_{i=1}^N Y_i
+= \bar{Y}
+$$
+
+Note that we are multiplying by the scalar $1/N$. In R, we multiply matrix using `%*%`:
+
+```{r,message=FALSE}
+data(father.son,package="UsingR")
+y <- father.son$sheight
+print(mean(y))
+
+N <- length(y)
+Y<- matrix(y,N,1)
+A <- matrix(1,N,1)
+barY=t(A)%*%Y / N
+
+print(barY)
+```
+
+**The variance**
+
+As we will see later, multiplying the transpose of a matrix with another is very common in statistics. In fact, it is so common that there is a function in R:
+
+```{r}
+barY=crossprod(A,Y) / N
+print(barY)
+```
+
+For the variance, we note that if:
+
+$$
+\mathbf{r}\equiv \begin{pmatrix}
+Y_1 - \bar{Y}\\
+\vdots\\
+Y_N - \bar{Y}
+\end{pmatrix}, \,\,
+\frac{1}{N} \mathbf{r}^\top\mathbf{r} = 
+\frac{1}{N}\sum_{i=1}^N (Y_i - \bar{Y})^2
+$$
+
+In R, if you only send one matrix into `crossprod`, it computes: $r^\top r$ so we can simply type:
+
+```{r}
+r <- y - barY
+crossprod(r)/N
+```
+
+Which is almost equivalent to:
+```{r}
+library(rafalib)
+popvar(y) 
+```
+
+**Linear models**
+
+Now we are ready to put all this to use. Let's start with Galton's example. If we define these matrices:
+ 
+$$
+\mathbf{Y} = \begin{pmatrix}
+Y_1\\
+Y_2\\
+\vdots\\
+Y_N
+\end{pmatrix}
+,
+\mathbf{X} = \begin{pmatrix}
+1&x_1\\
+1&x_2\\
+\vdots\\
+1&x_N
+\end{pmatrix}
+,
+\mathbf{\beta} = \begin{pmatrix}
+\beta_0\\
+\beta_1
+\end{pmatrix} \mbox{ and }
+\mathbf{\varepsilon} = \begin{pmatrix}
+\varepsilon_1\\
+\varepsilon_2\\
+\vdots\\
+\varepsilon_N
+\end{pmatrix}
+$$
+
+
+
+**Then we can write the model**:
+
+$$ 
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, i=1,\dots,N 
+$$
+
+**as:**
+
+
+$$
+\,
+\begin{pmatrix}
+Y_1\\
+Y_2\\
+\vdots\\
+Y_N
+\end{pmatrix} = 
+\begin{pmatrix}
+1&x_1\\
+1&x_2\\
+\vdots\\
+1&x_N
+\end{pmatrix}
+\begin{pmatrix}
+\beta_0\\
+\beta_1
+\end{pmatrix} +
+\begin{pmatrix}
+\varepsilon_1\\
+\varepsilon_2\\
+\vdots\\
+\varepsilon_N
+\end{pmatrix}
+$$
+
+**or simply:** 
+
+$$
+\mathbf{Y}=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}
+$$
+
+**which is a much simpler way to write it.**
+
+
+The least squares equation becomes simpler as well since it is the following cross-product:
+
+$$
+(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})^\top
+(\mathbf{Y}-\mathbf{X}\boldsymbol{\beta})
+$$
+
+So now we are ready to determine which values of $\beta$ minimize the above, which we  can do  using calculus to find the minimum. 
+
+**Advanced: Finding the minimum using calculus**
+
+There are a series of rules that permit us to compute partial derivative equations in matrix notation. By equating the derivative to 0 and solving for the $\beta$, we will have our solution. The only one we need here tells us that the derivative of the above equation is:
+
+$$
+2 \mathbf{X}^\top (\mathbf{Y} - \mathbf{X} \boldsymbol{\hat{\beta}})=0
+$$
+
+$$
+\mathbf{X}^\top \mathbf{X} \boldsymbol{\hat{\beta}} = \mathbf{X}^\top \mathbf{Y}   
+$$
+
+
+$$
+\boldsymbol{\hat{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{Y}   
+$$
+
+and we have our solution. We usually put a hat on the $\beta$ that solves this, $\hat{\beta}$ , as it is an estimate of the "real" $\beta$ that generated the data.
+
+Remember that the least squares are like a square (multiply something by itself) and that this formula is similar to the derivative of $f(x)^2$ being $2f(x)f\prime (x)$. 
+
+
+**Finding LSE in R**
+
+Let's see how it works in R:
+
+```{r}
+data(father.son,package="UsingR")
+x=father.son$fheight
+y=father.son$sheight
+X <- cbind(1,x)
+betahat <- solve( t(X) %*% X ) %*% t(X) %*% y
+###or
+betahat <- solve( crossprod(X) ) %*% crossprod( X, y )
+```
+
+
+Now we can see the results of this by computing the estimated $\hat{\beta}_0+\hat{\beta}_1 x$ for any value of $x$:
+
+```{r galton_regression_line, fig.cap="Galton's data with fitted regression line."}
+newx <- seq(min(x),max(x),len=100)
+X <- cbind(1,newx)
+fitted <- X%*%betahat
+plot(x,y,xlab="Father's height",ylab="Son's height")
+lines(newx,fitted,col=2)
+```
+
+This $\hat{\boldsymbol{\beta}}=(\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{Y}$ is one of the most widely used results in data analysis. One of the advantages of this approach is that we can use it in many different situations.  For example, in our falling object problem: 
+ 
+```{r}
+set.seed(1)
+g <- 9.8 #meters per second
+n <- 25
+tt <- seq(0,3.4,len=n) #time in secs, t is a base function
+d <- 56.67  - 0.5*g*tt^2 + rnorm(n,sd=1)
+```
+
+Notice that we are using almost the same exact code:
+
+
+```{r gravity_with_fitted_parabola, fig.cap="Fitted parabola to simulated data for distance travelled versus time of falling object measured with error."}
+X <- cbind(1,tt,tt^2)
+y <- d
+betahat <- solve(crossprod(X))%*%crossprod(X,y)
+newtt <- seq(min(tt),max(tt),len=100)
+X <- cbind(1,newtt,newtt^2)
+fitted <- X%*%betahat
+plot(tt,y,xlab="Time",ylab="Height")
+lines(newtt,fitted,col=2)
+```
+
+And the resulting estimates are what we expect:
+
+```{r}
+betahat
+```
+
+  
+
+**The `lm` Function**
+R has a very convenient function that fits these models. We will learn more about this function later, but here is a preview:
+
+```{r}
+X <- cbind(tt,tt^2)
+fit=lm(y~X)
+summary(fit)
+```
+
+Note that we obtain the same values as above.
+
+**Summary**
+
+We have shown how to write linear models using linear algebra. We are going to do this for several examples, many of which are related to designed experiments. We also demonstrated how to obtain least squares estimates. Nevertheless, it is important to remember that because $y$ is a random variable, these estimates are random as well. In a later section, we will learn how to compute standard error for these estimates and use this to perform inference.
+
+
+# Inference
+
+<a name="introduction"></a>
+
+
+## Introduction: the process of reaching a conclusion from known facts. 
+
+```{r,results=FALSE,echo=FALSE}
+set.seed(1) #so that we get same results
+```
+
+The data introduced here is from a paper entitled The High-Fat Diet–Fed Mouse: A Model for Studying Mechanisms and Treatment of Impaired Glucose Tolerance and Type 2 Diabetes where they try and show that the mouse is a good model for studying diabetes and development of new treatments. the statistical concepts necessary to understand p-values and confidence intervals. These terms are ubiquitous in the life science literature. We'll use [this paper](https://doi.org/10.2337/diabetes.53.suppl_3.s215) as an example of . 
+
+Note that the abstract has this statement: 
+
+> "Body weight was higher in mice fed the high-fat diet already after the first week, due to higher dietary intake in combination with lower metabolic efficiency." 
+
+To support this claim they provide the following in the results section:
+
+> "Already during the first week after introduction of high-fat diet, body weight increased significantly more in the high-fat diet-fed mice ($+$ 1.6 $\pm$ 0.1 g) than in the normal diet-fed mice ($+$ 0.2 $\pm$ 0.1 g; P < 0.001)."
+
+What does P < 0.001 mean? What are the $\pm$ included?
+We will learn what this means and learn to compute these values in
+R. The first step is to understand random variables. To do
+this, we will use data from a mouse database (provided by Karen
+Svenson via Gary Churchill and Dan Gatti and partially funded by P50
+GM070683). We will import the data into R and explain random variables
+and null distributions using R programming. 
+
+If you already downloaded the `femaleMiceWeights` file into your working directory, you can read it into R with just one line:
+
+```{r echo=FALSE, results="hide"}
+library(downloader) ##use install.packages to install
+dir <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/"
+filename <- "femaleMiceWeights.csv"
+url <- paste0(dir, filename)
+if (!file.exists(filename)) download(url, destfile = filename)
+```
+
+```{r}
+dat <- read.csv("femaleMiceWeights.csv")
+```
+
+Remember that a quick way to read the data, without downloading it is by using the url:
+
+```{r,eval=FALSE}
+dir <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/"
+filename <- "femaleMiceWeights.csv"
+url <- paste0(dir, filename)
+dat <- read.csv(url)
+```
+
+** Our first look at data **
+
+We are interested in determining if following a given diet makes mice
+heavier after several weeks. This data was produced by ordering 24
+mice from The Jackson Lab and randomly assigning either chow or high
+fat (hf) diet. After several weeks, the scientists weighed each mouse
+and obtained this data (`head` just shows us the first 6 rows):
+
+```{r}
+head(dat) 
+``` 
+
+In RStudio, you can view the entire dataset with:
+
+```{r,eval=FALSE}
+View(dat)
+```
+
+So are the hf mice heavier? Mouse 24 at 20.73 grams is one of the
+lightest mice, while Mouse 21 at 34.02 grams is one of the heaviest. Both are on
+the hf diet. Just from looking at the data, we see there is
+*variability*. Claims such as the one above usually refer to the
+averages. So let's look at the average of each group: 
+
+```{r,message=FALSE}
+library(dplyr)
+control <- filter(dat,Diet == "chow") %>% select(Bodyweight) %>% unlist
+treatment <- filter(dat,Diet == "hf") %>% select(Bodyweight) %>% unlist
+print( mean(treatment) )
+print( mean(control) )
+obsdiff <- mean(treatment) - mean(control)
+print(obsdiff)
+```
+
+So the hf diet mice are about 10% heavier. Are we done? Why do we need p-values and confidence intervals? The reason is that these averages are random variables. They can take many values. 
+
+If we repeat the experiment, we obtain 24 new mice from The Jackson Laboratory and, after randomly assigning them to each diet, we get a different mean. Every time we repeat this experiment, we get a different value. We call this type of quantity a *random variable*. 
+
+<a name="random_variable"></a>
+## T.tests
+** We can use a t.test to ask if there is a difference between the treatment and the control **
+```{r}
+t.test(treatment, control)
+```
+
+To see just the p-value, we can use the `$` extractor:
+
+```{r}
+result <- t.test(treatment,control)
+result$p.value
+```
+
+

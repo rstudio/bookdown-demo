@@ -1,0 +1,1202 @@
+---
+title: "Introduction to Highthroughput Data"
+author: "Rafa"
+date: "January 31, 2015"
+output:
+  html_document: default
+  pdf_document: default
+layout: page
+---
+
+```{r options, echo=FALSE}
+library(knitr)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 40), tidy = TRUE)
+```
+
+# Highthroughput Data
+
+## The data 
+
+High-throughput technologies have changed basic biology and the biomedical sciences from data poor disciplines to data intensive ones. A specific example comes from research fields interested in understanding gene expression. Gene expression is the process in which DNA, the blueprint for life, is copied into RNA, the templates for the synthesis of proteins, the building blocks for life. In the 1990s, the analysis of gene expression data amounted to spotting black dots on a piece of paper or extracting a few numbers from standard curves. With high-throughput technologies, such as microarrays, this suddenly changed to sifting through tens of thousands of numbers. More recently, RNA sequencing has further increased data complexity. Biologists went from using their eyes or simple summaries to categorize results, to having thousands (and now millions) of measurements per sample to analyze. In this chapter, we will focus on statistical inference in the context of high-throughput measurements. Specifically, we focus on the problem of detecting differences in groups using statistical tests and quantifying uncertainty in a meaningful way. We also introduce exploratory data analysis techniques that should be used in conjunction with inference when analyzing high-throughput data. In later chapters, we will study the statistics behind clustering, machine learning, factor analysis and multi-level modeling. 
+
+Since there is a vast number of available public datasets, we use several gene expression examples. Nonetheless, the statistical techniques you will learn have also proven useful in other fields that make use of high-throughput technologies. Technologies such as microarrays, next generation sequencing, fMRI, and mass spectrometry all produce data to answer questions for which what we learn here will be indispensable. 
+
+<a name="threetables"></a>
+
+** Data packages**
+Several of the  examples we are going to use in the following sections are best obtained through R packages. These are available from GitHub and can be installed using the `install_github` function from the `devtools` package. Microsoft Windows users might need to follow [these instructions](https://github.com/genomicsclass/windows) to properly install `devtools`. 
+
+Once `devtools` is installed, you can then install the data packages like this:
+
+```{r,eval=FALSE}
+library(devtools)
+library(GSE5859Subset)
+install_github("genomicsclass/GSE5859Subset")
+```
+
+
+## The three tables
+
+Most of the data we use as examples in this book are created with high-throughput technologies. These technologies measure thousands of _features_. Examples of features are genes, single base locations of the genome, genomic regions, or image pixel intensities. Each specific measurement product is defined by a specific set of features. For example, a specific gene expression microarray product is defined by the set of genes that it measures. 
+
+A specific study will typically use one product to make measurements on several experimental units, such as individuals. The most common experimental unit will be the individual, but they can also be defined by other entities, for example different parts of a tumor. We often call the experimental units _samples_ following experimental jargon. It is important that these are not confused with samples as referred to in previous chapters, for example "random sample". 
+
+So a high-throughput experiment is usually defined by three tables: one with the high-throughput measurements and two tables with information about the columns and rows of this first table respectively.
+
+Because a dataset is typically defined by a set of experimental units and a product defines a fixed set of features, the high-throughput measurements can be stored in an $n \times m$ matrix, with $n$ the number of units and $m$ the number of features. In R, the convention has been to store the transpose of these matrices. 
+
+Here is an example from a gene expression dataset:
+
+```{r}
+library(GSE5859Subset)
+data(GSE5859Subset) ##this loads the three tables
+dim(geneExpression)
+```
+
+We have RNA expression measurements for 8793 genes from blood taken from 24 individuals (the experimental units). For most statistical analyses, we will also need information about the individuals. For example, in this case the data was originally collected to compare gene expression across ethnic groups. However, we have created a subset of this dataset for illustration and separated the data into two groups:
+
+
+```{r}
+dim(sampleInfo)
+head(sampleInfo)
+sampleInfo$group
+```
+
+One of the columns, filenames, permits us to connect the rows of this table to the columns of the measurement table.
+
+```{r}
+match(sampleInfo$filename,colnames(geneExpression))
+```
+
+
+Finally, we have a table describing the features:
+
+```{r}
+dim(geneAnnotation)
+head(geneAnnotation)
+```
+
+The table includes an ID that permits us to connect the rows of this table with the rows of the measurement table:
+```{r}
+head(match(geneAnnotation$PROBEID,rownames(geneExpression)))
+```
+The table also includes biological information about the features, namely chromosome location and the gene "name" used by biologists.
+
+888888888888888888888888888888888888888888888888888888
+
+## The Design Matrix
+
+Here we will show how to use the two R functions, `formula`
+and `model.matrix`, in order to produce *design matrices* (also known as *model matrices*) for a variety of linear models. For example, in the mouse diet examples we wrote the model as
+
+$$ 
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, i=1,\dots,N 
+$$
+
+with $Y_i$ the weights 
+and $x_i$ equal to 1 only when mouse $i$ receives the high fat diet. We use the term _experimental unit_ to $N$ different entities from which we obtain a measurement. In this case, the mice are the experimental units. 
+
+This is the type of variable we will focus on in this chapter. We call them _indicator variables_ since they simply indicate if the experimental unit had a certain characteristic or not. As we described earlier, we can use linear algebra to represent this model:
+
+$$
+\mathbf{Y} = \begin{pmatrix}
+Y_1\\
+Y_2\\
+\vdots\\
+Y_N
+\end{pmatrix}
+,
+\mathbf{X} = \begin{pmatrix}
+1&x_1\\
+1&x_2\\
+\vdots\\
+1&x_N
+\end{pmatrix}
+,
+\boldsymbol{\beta} = \begin{pmatrix}
+\beta_0\\
+\beta_1
+\end{pmatrix} \mbox{ and }
+\boldsymbol{\varepsilon} = \begin{pmatrix}
+\varepsilon_1\\
+\varepsilon_2\\
+\vdots\\
+\varepsilon_N
+\end{pmatrix}
+$$
+
+
+
+as: 
+
+
+$$
+\,
+\begin{pmatrix}
+Y_1\\
+Y_2\\
+\vdots\\
+Y_N
+\end{pmatrix} = 
+\begin{pmatrix}
+1&x_1\\
+1&x_2\\
+\vdots\\
+1&x_N
+\end{pmatrix}
+\begin{pmatrix}
+\beta_0\\
+\beta_1
+\end{pmatrix} +
+\begin{pmatrix}
+\varepsilon_1\\
+\varepsilon_2\\
+\vdots\\
+\varepsilon_N
+\end{pmatrix}
+$$
+
+or simply: 
+
+$$
+\mathbf{Y}=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}
+$$
+
+The design matrix is the matrix $\mathbf{X}$.
+
+Once we define a design matrix, we are ready to find the least squares estimates. We refer to this as _fitting the model_. For fitting linear models in R, we will directly provide a _formula_ to the `lm` function. In this script, we will use the `model.matrix` function, which is used internally by the `lm` function. This will help us to connect the R `formula` with the matrix $\mathbf{X}$. It will therefore help us interpret the results from `lm`.
+
+## Choice of design
+
+The choice of design matrix is a critical step in linear modeling since it encodes which coefficients will be fit in the model, as well as the inter-relationship between the samples. 
+A common misunderstanding is that the choice of design follows straightforward from a description of which samples were included in the experiment. This is not the case. The basic information about each sample (whether control or treatment group, experimental batch, etc.) does not imply a single 'correct' design matrix. The design matrix additionally encodes various assumptions about how the variables in $\mathbf{X}$ explain the observed values in $\mathbf{Y}$, on which the investigator must decide.
+
+For the examples we cover here, we use linear models to make comparisons between different groups. Hence, the design matrices that we ultimately work with will have at least two columns: an _intercept_ column, which consists of a column of 1's, and a second column, which specifies which samples are in a second group. In this case, two coefficients are fit in the linear model: the intercept, which represents the population average of the first group, and a second coefficient, which represents the difference between the population averages of the second group and the first group. The latter is typically the coefficient we are interested in when we are performing statistical tests: we want to know if there is a difference between the two groups. Very often these come from the sampleInfo table in a summarized experiment.
+
+We encode this experimental design in R with two pieces. We start with a formula with the tilde symbol `~`. This means that we want to model the observations using the variables to the right of the tilde. Then we put the name of a variable, which tells us which samples are in which group.
+
+Let's try an example. Suppose we have two groups, control and high fat diet, with two samples each. For illustrative purposes, we will code these with 1 and 2 respectively. We should first tell R that these values should not be interpreted numerically, but as different levels of a *factor*. We can then use the paradigm `~ group` to, say, model on the variable `group`.
+
+```{r}
+group <- factor( c(1,1,2,2) )
+model.matrix(~ group)
+```
+
+(Don't worry about the `attr` lines printed beneath the matrix. We won't be using this information.)
+
+What about the `formula` function? We don't have to include this. By starting an expression with `~`, it is equivalent to telling R that the expression is a formula:
+
+```{r}
+model.matrix(formula(~ group))
+```
+
+What happens if we don't tell R that `group` should be interpreted as a factor?
+
+```{r}
+group <- c(1,1,2,2)
+model.matrix(~ group)
+```
+
+This is **not** the design matrix we wanted, and the reason is that we provided a numeric variable as opposed to an _indicator_ to the `formula` and `model.matrix` functions, without saying that these numbers actually referred to different groups. We want the second column to have only 0 and 1, indicating group membership.
+
+A note about factors: the names of the levels are irrelevant to `model.matrix` and `lm`. All that matters is the order. For example:
+
+```{r}
+group <- factor(c("control","control","highfat","highfat"))
+model.matrix(~ group)
+```
+
+produces the same design matrix as our first code chunk.
+
+### More groups
+
+Using the same formula, we can accommodate modeling more groups. Suppose we have a third diet:
+
+```{r}
+group <- factor(c(1,1,2,2,3,3))
+model.matrix(~ group)
+```
+
+Now we have a third column which specifies which samples belong to the third group.
+
+An alternate formulation of design matrix is possible by specifying `+ 0` in the formula:
+
+```{r}
+group <- factor(c(1,1,2,2,3,3))
+model.matrix(~ group + 0)
+```
+
+This group now fits a separate coefficient for each group. We will explore this design in more depth later on.
+
+** More variables **
+
+We have been using a simple case with just one variable (diet) as an example. In the life sciences, it is quite common to perform experiments with more than one variable. For example, we may be interested in the effect of diet and the difference in sexes. In this case, we have four possible groups:
+
+```{r}
+diet <- factor(c(1,1,1,1,2,2,2,2))
+sex <- factor(c("f","f","m","m","f","f","m","m"))
+table(diet,sex)
+```
+
+If we assume that the diet effect is the same for males and females (this is an assumption), then our linear model is:
+
+$$
+Y_{i}= \beta_0 + \beta_1 x_{i,1} + \beta_2 x_{i,2} + \varepsilon_i 
+$$
+
+To fit this model in R, we can simply add the additional variable with a `+` sign in order to build a design matrix which fits based on the information in additional variables:
+
+```{r}
+diet <- factor(c(1,1,1,1,2,2,2,2))
+sex <- factor(c("f","f","m","m","f","f","m","m"))
+model.matrix(~ diet + sex)
+```
+
+The design matrix includes an intercept, a term for `diet` and a term for `sex`. We would say that this linear model accounts for differences in both the group and condition variables. However, as mentioned above, the model assumes that the diet effect is the same for both males and females. We say these are an _additive_ effect. For each variable, we add an effect regardless of what the other is. Another model is possible here, which fits an additional term and which encodes the potential interaction of group and condition variables. We will cover interaction terms in depth in a later script.
+
+The interaction model can be written in either of the following two formulas:
+
+```{r,eval=FALSE}
+model.matrix(~ diet + sex + diet:sex)
+```
+
+or 
+
+```{r}
+model.matrix(~ diet*sex)
+```
+
+** Releveling **
+
+The level which is chosen for the *reference level* is the level which is contrasted against.  By default, this is simply the first level alphabetically. We can specify that we want group 2 to be the reference level by either using the `relevel` function:
+
+```{r}
+group <- factor(c(1,1,2,2))
+group <- relevel(group, "2")
+model.matrix(~ group)
+```
+
+or by providing the levels explicitly in the `factor` call:
+```{r}
+group <- factor(group, levels = c("1","2"))
+model.matrix(~ group)
+```
+888888888888888888888888888888888888888888888888888888
+
+## Linear Regression in practice
+Linear regression is used to predict the value of an outcome variable Y based on one or more input predictor variables X. The aim is to establish a linear relationship (a mathematical formula) between the predictor variable(s) and the response variable, so that, we can use this formula to estimate the value of the response Y, when only the predictors (Xs) values are known.
+
+Introduction
+The aim of linear regression is to model a continuous variable Y as a mathematical function of one or more X variable(s), so that we can use this regression model to predict the Y when only the X is known. This mathematical equation can be generalized as follows:
+
+$$ \mathbf{Y} = {\beta1} + {\beta2}\mathbf{X} + {\epsilon} $$
+
+
+where, β1 is the intercept and β2 is the slope. Collectively, they are called regression coefficients. ϵ is the error term, the part of Y the regression model is unable to explain.
+
+Example Problem
+For this analysis, we will use the cars dataset that comes with R by default. cars is a standard built-in dataset, that makes it convenient to demonstrate linear regression in a simple and easy to understand fashion. You can access this dataset simply by typing in cars in your R console. You will find that it consists of 50 observations(rows) and 2 variables (columns) – dist and speed. Lets print out the first six observations here..
+
+```{r}
+head(cars)  
+```
+
+Before we begin building the regression model, it is a good practice to analyze and understand the variables. The graphical analysis and correlation study below will help with this.
+
+Graphical Analysis
+The aim of this exercise is to build a simple regression model that we can use to predict Distance (dist) by establishing a statistically significant linear relationship with Speed (speed). But before jumping in to the syntax, lets try to understand these variables graphically. Typically, for each of the independent variables (predictors), the following plots are drawn to visualize the following behavior:
+
+Scatter plot: Visualize the linear relationship between the predictor and response
+
+Box plot: To spot any outlier observations in the variable. Having outliers in your predictor can drastically affect the predictions as they can easily affect the direction/slope of the line of best fit.
+Density plot: To see the distribution of the predictor variable. Ideally, a close to normal distribution (a bell shaped curve), without being skewed to the left or right is preferred. Let us see how to make each one of them.
+
+Scatter Plot
+Scatter plots can help visualize any linear relationships between the dependent (response) variable and independent (predictor) variables. Ideally, if you are having multiple predictor variables, a scatter plot is drawn for each one of them against the response, along with the line of best as seen below.
+
+```{r}
+scatter.smooth(x = cars$speed, y = cars$dist, main = "Dist ~ Speed")  # scatterplot
+```
+
+The scatter plot along with the smoothing line above suggests a linearly increasing relationship between the ‘dist’ and ‘speed’ variables. This is a good thing, because, one of the underlying assumptions in linear regression is that the relationship between the response and predictor variables is linear and additive.
+
+BoxPlot – Check for outliers
+Generally, any datapoint that lies outside the 1.5 * interquartile-range (1.5 * IQR) is considered an outlier, where, IQR is calculated as the distance between the 25th percentile and 75th percentile values for that variable.
+
+```{r}
+par(mfrow = c(1, 2))  # divide graph area in 2 columns
+boxplot(cars$speed, main = "Speed", sub = paste("Outlier rows: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
+boxplot(cars$dist, main = "Distance", sub = paste("Outlier rows: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
+```
+Check if the response variable is close to normality
+Normal Q-Q plots take your sample data, sort it in ascending order, and then plot them versus quantiles calculated from a theoretical normal distribution. The number of quantiles is selected to match the size of your sample data. In R this can be done using the `qnorm` and `qline` functions. `qnorm` plots your data agaist the theoretical normal distribution, and `qline` plots the normal distribution against itself for comparison.  
+
+```{r}
+library(rafalib)
+mypar(1,2) # divide graph area in 2 columns
+par(pch = 19)  
+qqnorm(cars$speed, ylab = "speed quantiles",xlab = "normal quantiles",
+       main = "Speed Q-Q Plot", col = "dodgerblue")
+qqline(cars$speed)
+qqnorm(cars$dist, ylab = "distance quantiles",xlab = "normal quantiles",
+       main = "Distance Q-Q Plot",col = "dodgerblue")
+qqline(cars$dist)
+
+```
+
+Correlation
+Correlation is a statistical measure that suggests the level of linear dependence between two variables, that occur in pair – just like what we have here in speed and dist. Correlation can take values between -1 to +1. If we observe for every instance where speed increases, the distance also increases along with it, then there is a high positive correlation between them and therefore the correlation between them will be closer to 1. The opposite is true for an inverse relationship, in which case, the correlation between the variables will be close to -1.
+
+A value closer to 0 suggests a weak relationship between the variables. A low correlation (-0.2 < x < 0.2) probably suggests that much of variation of the response variable (Y) is unexplained by the predictor (X), in which case, we should probably look for better explanatory variables.
+
+```{r}
+cor(cars$speed, cars$dist)  # calculate correlation between speed and distance 
+```
+
+Build Linear Model
+Now that we have seen the linear relationship pictorially in the scatter plot and by computing the correlation, lets see the syntax for building the linear model. The function used for building linear models is lm(). The lm() function takes in two main arguments, namely: 1. Formula 2. Data. The data is typically a data.frame and the formula is a object of class formula. But the most common convention is to write out the formula directly in place of the argument as written below.
+
+```{r}
+linearMod <- lm(dist ~ speed, data = cars)  # build linear regression model on full data
+print(linearMod)
+```
+
+Now that we have built the linear model, we also have established the relationship between the predictor and response in the form of a mathematical formula for Distance (dist) as a function for speed. For the above output, you can notice the ‘Coefficients’ part having two components: Intercept: -17.579, speed: 3.932 These are also called the beta coefficients. In other words,
+
+$$ dist = Intercept + ({\beta} * speed) => dist = −17.579 + 3.932∗speed $$
+
+
+
+Linear Regression Diagnostics
+
+Now the linear model is built and we have a formula that we can use to predict the dist value if a corresponding speed is known. Is this enough to actually use this model? NO! Before using a regression model, you have to ensure that it is statistically significant. How do you ensure this? Lets begin by printing the summary statistics for linearMod.
+
+```{r}
+summary(linearMod)  # model summary
+```
+
+The p Value: Checking for statistical significance
+The summary statistics above tells us a number of things. One of them is the model p-Value (bottom last line) and the p-Value of individual predictor variables (extreme right column under ‘Coefficients’). The p-Values are very important because, We can consider a linear model to be statistically significant only when both these p-Values are less that the pre-determined statistical significance level, which is ideally 0.05. This is visually interpreted by the significance stars at the end of the row. The more the stars beside the variable’s p-Value, the more significant the variable.
+
+Null and alternate hypothesis
+
+When there is a p-value, there is a hull and alternative hypothesis associated with it. In Linear Regression, the Null Hypothesis is that the coefficients associated with the variables is equal to zero. The alternate hypothesis is that the coefficients are not equal to zero (i.e. there exists a relationship between the independent variable in question and the dependent variable).
+
+t-value
+We can interpret the t-value something like this. A larger t-value indicates that it is less likely that the coefficient is not equal to zero purely by chance. So, higher the t-value, the better.
+
+Pr(>|t|) or p-value is the probability that you get a t-value as high or higher than the observed value when the Null Hypothesis (the β coefficient is equal to zero or that there is no relationship) is true. So if the Pr(>|t|) is low, the coefficients are significant (significantly different from zero). If the Pr(>|t|) is high, the coefficients are not significant.
+
+
+What this means to us? when p Value is less than significance level (< 0.05), we can safely reject the null hypothesis that the co-efficient β ${\beta}$ of the predictor is zero. In our case, linearMod, both these p-Values are well below the 0.05 threshold, so we can conclude our model is indeed statistically significant.
+
+It is absolutely important for the model to be statistically significant before we can go ahead and use it to predict (or estimate) the dependent variable, otherwise, the confidence in predicted values from that model reduces and may be construed as an event of chance.
+
+How to calculate the t Statistic and p-Values?
+
+When the model co-efficients and standard error are known, the formula for calculating t Statistic and p-Value is as follows:
+
+$$t−Statistic = \frac{{\beta}−coefficient}{Std.Error} $$
+
+
+```{r}
+modelSummary <- summary(linearMod)  # capture model summary as an object
+modelCoeffs <- modelSummary$coefficients  # model coefficients
+beta.estimate <- modelCoeffs["speed", "Estimate"]  # get beta estimate for speed
+std.error <- modelCoeffs["speed", "Std. Error"]  # get std.error for speed
+t_value <- beta.estimate/std.error  # calc t statistic
+p_value <- 2*pt(-abs(t_value), df = nrow(cars)-ncol(cars))  # calc p Value
+f_statistic <- linearMod$fstatistic[1]  # fstatistic
+f <- summary(linearMod)$fstatistic  # parameters for model p-value calc
+model_p <- pf(f[1], f[2], f[3], lower.tail = FALSE)
+```
+
+R-Squared 
+The actual information in a data is the total variation it contains, remember?. What R-Squared tells us is the proportion of variation in the dependent (response) variable that has been explained by this model. In our example, 
+the $R^2$ we get is 0.6510794. Or roughly 65% of the variance found in the response variable (dist) can be explained by the predictor variable (speed). Pretty good, so speed is a good predictor of the distance required for a car to stop. A reminder of where $R^2$ comes from:
+
+
+$$ R^2 = 1−\frac{SSE}{SST}$$
+where SSE is the sum of squared errors given by:
+$$SSE= \sum_{i = 1}^{n}{(y_i - \hat{y_i})^2}$$
+and SST is the sum of squared total:
+$$SST = \sum_{i = 1}^{n}{(y_i - \bar{y_i})^2}$$
+
+Here, $\hat{y_i}$ is the fitted value for observation i and $\bar{y_i}$ is the mean of Y.
+
+Finally, we can plot the results:
+
+```{r}
+par(pch = 19)
+plot(cars$speed,cars$dist,ylab = "distance",xlab = "speed",
+       main = "Stopping Distance as a Function of Speed")
+points(cars$speed,linearMod$fitted.values,col = "dodgerblue")
+lines(cars$speed,linearMod$fitted.values,col = "dodgerblue")
+```
+
+
+888888888888888888888888888888888888888888888888888888
+## The mouse diet example
+
+We will demonstrate how to analyze the high fat diet data using linear models instead of directly applying a t-test. We will demonstrate how ultimately these two approaches are equivalent. 
+
+We start by reading in the data and creating a quick stripchart:
+
+```{r,echo=FALSE}
+url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleMiceWeights.csv"
+filename <- "femaleMiceWeights.csv"
+library(downloader)
+if (!file.exists(filename)) download(url, filename)
+```
+
+```{r,echo=FALSE}
+set.seed(1) #same jitter in stripchart
+```
+
+```{r bodyweight_by_diet_stripchart, fig.cap="Mice bodyweights stratified by diet."}
+dat <- read.csv("femaleMiceWeights.csv") ## previously downloaded
+par(pch = 22)
+stripchart(dat$Bodyweight ~ dat$Diet, vertical=TRUE, method="jitter",
+           main="Bodyweight over Diet",pch = 19)
+```
+
+We can see that the high fat diet group appears to have higher weights on average, although there is overlap between the two samples.
+
+For demonstration purposes, we will build the design matrix $\mathbf{X}$ using the formula `~ Diet`. The group with the 1's in the second column is determined by the level of `Diet` which comes second; that is, the non-reference level. 
+
+```{r}
+levels(dat$Diet)
+X <- model.matrix(~ Diet, data=dat)
+head(X)
+```
+
+## The Mathematics Behind lm()
+
+Before we use our shortcut for running linear models, `lm`, we want to review what will happen internally. Inside of `lm`, we will form the design matrix $\mathbf{X}$ to solve the linear equation:
+
+$$ \mathbf{Y} = \hat{\boldsymbol{\beta}}\mathbf{X} $$
+
+and calculate the $\boldsymbol{\beta}$, which minimizes the sum of squares using the previously described formula. The formula for this solution is:
+
+$$ \hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{Y} $$
+
+We can calculate this in R using our matrix multiplication operator `%*%`, the inverse function `solve`, and the transpose function `t`.
+
+
+```{r}
+Y <- dat$Bodyweight
+X <- model.matrix(~ Diet, data=dat)
+solve(t(X) %*% X) %*% t(X) %*% Y
+
+solveLM = function(Y, design){
+        
+    sv =   solve(t(design) %*% design) %*% t(design) %*% Y  
+    sv
+}
+# just to go back to the cars example for a second...model matrices aren't really necesssary when you have just two variables and all your variable are numeric (covariates) as opposed being a factor
+d = model.matrix(dist~speed,cars)
+solveLM(Y=cars$dist,design = d)
+```
+These coefficients are the average of the control group and the difference of the averages:
+
+
+```{r}
+s <- split(dat$Bodyweight, dat$Diet)
+mean(s[["chow"]])
+mean(s[["hf"]]) - mean(s[["chow"]])
+```
+
+Finally, we use our shortcut, `lm`, to run the linear model:
+
+```{r}
+fit <- lm(Bodyweight ~ Diet, data=dat)
+summary(fit)
+(coefs <- coef(fit))
+
+# We can use the model matrix without the intercept to do the same as lm includes an offset in the function:
+
+fitY<- lm(Y ~ 0 + X)
+summary(fitY)$coefficients
+
+# For genomics data, where y can be a matrix and where each row is a gene and each column is an experimental sample. Each y is then independently fitting a gene in the rows of the matrix.
+fit.Y <-  lm.fit(x = X,y = Y)
+fit.Y$coefficients
+```
+**Examining the coefficients**
+
+The following plot provides a visualization of the meaning of the coefficients with colored arrows (code not shown):
+
+```{r parameter_estimate_illustration, fig.cap="Estimated linear model coefficients for bodyweight data illustrated with arrows.",echo=FALSE}
+stripchart(dat$Bodyweight ~ dat$Diet, vertical=TRUE, method="jitter",
+           main="Bodyweight over Diet", ylim=c(0,40), xlim=c(0,3),pch = 19)
+a <- -0.25
+lgth <- .1
+library(RColorBrewer)
+cols <- brewer.pal(3,"Dark2")
+abline(h=0)
+arrows(1+a,0,1+a,coefs[1],lwd=3,col=cols[1],length=lgth)
+abline(h=coefs[1],col=cols[1])
+arrows(2+a,coefs[1],2+a,coefs[1]+coefs[2],lwd=3,col=cols[2],length=lgth)
+abline(h=coefs[1]+coefs[2],col=cols[2])
+legend("right",names(coefs),fill=cols,cex=.75,bg="white")
+```
+
+To make a connection with material presented earlier, this simple linear model is actually giving us the same result (the t-statistic and p-value) for the difference as a specific kind of t-test. This is the t-test between two groups with the assumption that the population standard deviation is the same for both groups. This was encoded into our linear model when we assumed that the errors $\boldsymbol{\varepsilon}$ were all equally distributed.
+
+Although in this case the linear model is equivalent to a t-test, we will soon explore more complicated designs, where the linear model is a useful extension. Below we demonstrate that one does in fact get the exact same results:
+
+Our `lm` estimates were:
+
+```{r}
+summary(fit)$coefficients
+```
+
+**And the t-statistic  is the same:**
+
+```{r}
+ttest <- t.test(s[["hf"]], s[["chow"]], var.equal=TRUE)
+summary(fit)$coefficients[2,3]
+ttest$statistic
+```
+
+888888888888888888888888888888888888888888888888888888
+
+## Multiple comparisons 
+
+Most scientifically compelling questions concern biological variation,
+which can only be directly measured with good experimental design.  Accurate
+interpretation of origin and size of biological variation requires
+appropriate statistical analysis.
+
+In this section we will cover inference in the context of genome-scale experiments.  There are several serious conceptual problems:
+
+- there are many tests, often at least one test for each one of tens of thousands of features
+- each feature (typically a gene) exhibits its own technical and biological variability
+- there may be unmeasured or unreported sources of biological variation (such as time of day)
+- many features are inherently interrelated, so the tests are not independent
+
+888888888888888888888888888888888888888888888888888888
+
+
+## Inference in Practice
+
+Suppose we were given high-throughput gene expression data that was measured for several individuals in two populations. We are asked to report which genes have different average expression levels in the two populations. If instead of thousands of genes, we were handed data from just one gene, we could simply apply the inference techniques that we have learned before. We could, for example, use a t-test or some other test. Here we review what changes when we consider high-throughput data.
+
+### p-values are random variables
+
+An important concept to remember in order to understand the concepts presented in this chapter is that p-values are random variables. To see this,  consider the example in which we define a p-value from a t-test with a large enough sample size to use the CLT approximation. Then our p-value is defined as the probability that a normally distributed random variable is larger, in absolute value, than the observed t-test, call it $Z$. So for a two sided test the p-value is: 
+
+$$
+p = 2 \{ 1 - \Phi(\mid Z \mid)\}
+$$
+
+In R, we write:
+```{r,eval=FALSE}
+2*( 1-pnorm( abs(Z) ) )
+```
+
+Now because $Z$ is a random variable and $\Phi$ is a deterministic
+function, $p$ is also a random variable. We will create a Monte Carlo
+simulation showing how the values of $p$ change. We use `femaleControlsPopulation.csv` from earlier chapters.
+
+```{r,echo=FALSE}
+filename <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv"
+```
+
+We read in the data, and use `replicate` to repeatedly create p-values.
+
+```{r pvalue_hist, fig.cap="P-value histogram for 10,000 tests in which null hypothesis is true."}
+set.seed(1)
+population = unlist( read.csv(filename) )
+N <- 12
+B <- 10000
+pvals <- replicate(B,{
+  control = sample(population,N)
+  treatment = sample(population,N)
+  t.test(treatment,control)$p.val 
+  })
+hist(pvals)
+```
+
+As implied by the histogram, in this case the distribution of the p-value is uniformly distributed. In fact, we can show theoretically that when the null hypothesis is true, this is always the case. For the case in which we use the CLT, we have that the null hypothesis $H_0$ implies that our test statistic $Z$  follows a normal distribution with mean 0 and SD 1 thus:
+
+$$
+p_a = \mbox{Pr}(Z < a \mid H_0) = \Phi(a)
+$$
+
+This implies that:
+
+$$
+\begin{align*}
+\mbox{Pr}(p < p_a) &= \mbox{Pr}[ \Phi^{-1}(p) < \Phi^{-1}(p_a) ] \\
+  & = \mbox{Pr}(Z < a) = p_a
+\end{align*}
+$$
+
+which is the definition of a uniform distribution.
+
+## Thousands of tests
+
+In this data we have two groups denoted with 0 and 1:
+```{r}
+library(GSE5859Subset)
+data(GSE5859Subset)
+g <- sampleInfo$group
+g
+```
+
+If we were interested in a particular gene, let's arbitrarily pick the one on the 25th row, we would simply compute a t-test. To compute a p-value, we will use the t-distribution approximation and therefore we need the population data to be approximately normal. We check this assumption with a qq-plot:
+
+```{r qqplots_for_one_gene, fig.cap="Normal qq-plots for one gene. Left plot shows first group and right plot shows second group.",fig.width=10.5,fig.height=5.25}
+e <- geneExpression[25,]
+library(rafalib)
+mypar(1,2)
+qqnorm(e[g==1])
+qqline(e[g==1])
+qqnorm(e[g==0])
+qqline(e[g==0])
+```
+
+The qq-plots show that the data is well approximated by the normal approximation. The t-test does not find this gene to be statistically significant:
+
+```{r}
+t.test(e[g==1],e[g==0])$p.value
+```
+
+To answer the question for each gene, we simply repeat the above for each gene. Here we will define our own function and use `apply`:
+
+```{r}
+myttest <- function(x) t.test(x[g==1],x[g==0],var.equal=TRUE)$p.value
+pvals <- apply(geneExpression,1,myttest)
+```
+
+We can now see which genes have p-values less than, say, 0.05. For example, right away we see that...
+
+```{r}
+sum(pvals<0.05)
+```
+
+... genes had p-values less than 0.05.
+
+However, as we will describe in more detail below, we have to be careful in interpreting this result because we have performed over 8,000 tests. If we performed the same procedure on random data, for which the null hypothesis is true for all features, we obtain the following results:
+
+```{r}
+set.seed(1)
+m <- nrow(geneExpression)
+n <- ncol(geneExpression)
+randomData <- matrix(rnorm(n*m),m,n)
+nullpvals <- apply(randomData,1,myttest)
+sum(nullpvals<0.05)
+```
+
+As we will explain later in the chapter, this is to be expected: 419 is roughly 0.05*8192 and we will describe the theory that tells us why this prediction works.
+
+### Faster t-test implementation
+
+Before we continue, we should point out that the above implementation is very inefficient. There are several faster implementations that perform t-test for high-throughput data. We make use of a function that is not available from CRAN, but rather from the Bioconductor project. 
+
+To download and install packages from Bioconductor, we can use the `install_bioc` function in `rafalib` to install the package:
+
+
+```{r,eval=FALSE}
+install_bioc("genefilter")
+```
+
+Now we can show that this function is much faster than our code above and produce practically the same answer:
+
+```{r,message=FALSE}
+library(genefilter)
+results <- rowttests(geneExpression,factor(g))
+max(abs(pvals-results$p))
+```
+
+888888888888888888888888888888888888888888888888888888
+
+# Multiple testing: Procedures
+ 
+
+In the previous section we learned how p-values are no longer a useful quantity to interpret when dealing with high-dimensional data. This is because we are testing many _features_ at the same time. We refer to this as the _multiple comparison_ or _multiple testing_ or _multiplicity_ problem. The definition of a p-value does not provide a useful quantification here. Again, because when we test many hypotheses simultaneously, a list based simply on a small p-value cut-off of, say 0.01, can result in many false positives with high probability. Here we define terms that are more appropriate in the context of high-throughput data.
+
+The most widely used approach to the multiplicity problem is to define a _procedure_ and then estimate or _control_ an informative _error rate_ for this procedure. What we mean by _control_ here is that we adapt the procedure to guarantee an _error rate_ below a predefined value. The procedures are typically flexible through parameters or cutoffs that let us control specificity and sensitivity. An example of a procedure is: 
+
+* Compute a p-value for each gene.
+* Call significant all genes with p-values smaller than $\alpha$.
+
+Note that changing the $\alpha$ permits us to adjust specificity and sensitivity. 
+
+Next we define the _error rates_  that we will try to estimate and control.
+
+Error Rates
+
+Throughout this section we will be using the type I error and type II error terminology. We will also refer to them as false positives and false negatives respectively. We also use the more general terms specificity, which relates to type I error, and sensitivity, which relates to type II errors.
+
+In the context of high-throughput data we can make several type I errors and several type II errors in one experiment, as opposed to one or the other as seen in Chapter 1. In this table, we summarize the possibilities using the notation from the seminal paper by Benjamini-Hochberg:
+
+|   | Called significant   | Not called significant   | Total  |  
+|---|---|---|---|
+|Null True   | $V$   | $m_0-V$  | $m_0$  |
+|Alternative True   | $S$  | $m_1-S$    | $m_1$    |   
+|True   | $R$  |  $m-R$ | $m$  |
+
+To describe the entries in the table, let's use as an example a dataset representing measurements from 10,000 genes, which means that the total number of tests that we are conducting is: $m=10,000$. The number of genes for which the null hypothesis is true, which in most cases represent the "non-interesting" genes, is $m_0$ (NHT), while the number of genes for which the null hypothesis is false is $m_1$ (NHF). For this we can also say that the _alternative hypothesis_ is true. In general, we are interested in _detecting_ as many as possible of the cases for which the alternative hypothesis is true (true positives), without incorrectly detecting cases for which the null hypothesis is true (false positives). For most high-throughput experiments, we assume that $m_0$ is much greater than $m_1$. For example, we test 10,000 expecting 100 genes or less to be _interesting_. This would imply that $m_1 \leq 100$ and $m_0 \geq 19,900$. 
+
+Throughout this chapter we refer to _features_ as the units being tested. In genomics, examples of features are genes, transcripts, binding sites, CpG sites, and SNPs. In the table, $R$ (S) represents the total number of features that we call significant after applying our procedure, while $m-R$ (NS) is the total number of genes we don't call significant. The rest of the table contains important quantities that are unknown in practice.
+
+* $V$ represents the number of type I errors or false positives (FP). Specifically, $V$ is the number of features for which the null hypothesis is true, that we call significant.
+* $S$ represents the number of true positives (TP). Specifically, $S$ is the number of features for which the alternative is true, that we call significant. 
+
+This implies that there are $m_1-S$ type II errors or _false negatives_ (FN) and $m_0-V$ true negatives (TN). Keep in mind that if we only ran one test, a p-value is simply the probability that $V=1$ (FP) when $m=m_0=1$. Power is the probability of $S=1$ when $m=m_1=1$. In this very simple case, we wouldn't bother making the table above, but now we show how defining the terms in the table helps for the high-dimensional setting.
+
+  
+Data example
+
+Let's compute these quantities with a data example. We will use a Monte Carlo simulation using our mice data to imitate a situation in which we perform tests for 10,000 different fad diets, none of them having an effect on weight. This implies that the null hypothesis is true for diets and thus $m=m_0=10,000$ and $m_1=0$. Let's run the tests with a sample size of $N=12$ and compute $R$. Our procedure will declare any diet achieving a p-value smaller than $\alpha=0.05$ as significant. 
+
+```{r,echo=FALSE}
+library(downloader)
+url <- "https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv"
+filename <- "femaleControlsPopulation.csv"
+if (!file.exists(filename)) download(url,destfile=filename)
+```
+
+
+```{r}
+set.seed(1)
+population = unlist( read.csv("femaleControlsPopulation.csv") )
+alpha <- 0.05
+N <- 12
+m <- 10000
+pvals <- replicate(m,{
+  control = sample(population,N)
+  treatment = sample(population,N)
+  t.test(treatment,control)$p.value
+})
+```
+
+Although in practice we do not know the fact that no diet works, in this simulation we do, and therefore we can actually compute $V$ (FP) and $S$ (TP). Because all null hypotheses are true, we know, in this specific simulation, that $V=R$. Of course, in practice we can compute $R$ but not $V$.
+
+```{r}
+sum(pvals < 0.05) ##This is R
+```
+
+This many false positives are not acceptable in most contexts.
+
+Here is more complicated code showing results where 10% of the diets are effective with an average effect size of $\Delta= 3$ ounces. 
+Studying this code carefully will help us understand the meaning of the table above.
+First let's define _the truth_:
+
+```{r}
+alpha <- 0.05
+N <- 12
+m <- 10000 # total number of hypotheses
+p0 <- 0.90 ##10% of diets work, 90% don't, null hypothesis is TRUE
+m0 <- m*p0 # number of null hypotheses == TRUE
+m1 <- m-m0 # number of null hypotheses == FALSE
+nullHypothesis <- c( rep(TRUE,m0), rep(FALSE,m1))
+delta <- 3
+```
+
+Now we are ready to simulate 10,000 tests, perform a t-test on each, and record if we rejected the null hypothesis or not:
+
+```{r}
+set.seed(1)
+calls <- sapply(1:m, function(i){
+  control <- sample(population,N)
+  treatment <- sample(population,N)
+  if(!nullHypothesis[i]) treatment <- treatment + delta
+  ## if null hypothesis is FALSE, add weight to the treatment set
+  ## test if pvalue passes alpha threshold
+  ifelse( t.test(treatment,control)$p.value < alpha,
+          "Called Significant",
+          "Not Called Significant")
+})
+```
+
+Because in this simulation we know the truth (saved in `nullHypothesis`), we can compute the entries of the table:
+
+```{r}
+null_hypothesis <- factor( nullHypothesis, levels=c("TRUE","FALSE"))
+table(null_hypothesis,calls)
+```
+
+The first column of the table above shows us $V$ (FP) and $S$ (TP). Note that $V$ and $S$ are random variables. If we run the simulation repeatedly, these values change. Here is a quick example:
+
+```{r}
+B <- 10 ##number of simulations
+VandS <- replicate(B,{
+  calls <- sapply(1:m, function(i){
+    control <- sample(population,N)
+    treatment <- sample(population,N)
+    if(!nullHypothesis[i]) treatment <- treatment + delta
+    t.test(treatment,control)$p.val < alpha
+  })
+  cat("V =",sum(nullHypothesis & calls), "S =",sum(!nullHypothesis & calls),"\n")
+  c(sum(nullHypothesis & calls),sum(!nullHypothesis & calls))
+  })
+```
+
+This motivates the definition of error rates. We can, for example, estimate probability that $V$ is larger than 0. This is interpreted as the probability of making at least one type I error among the 10,000 tests. In the simulation above, $V$ was much larger than 1 in every single simulation, so we suspect this probability is very practically 1. When $m=1$, this probability is equivalent to the p-value. When we have a multiple tests situation, we call it the Family Wise Error Rate (FWER) and it relates to a technique that is widely used: The Bonferroni Correction.
+
+## The Bonferroni Correction 
+
+Now that we have learned about the Family Wise Error Rate (FWER), we describe what we can actually do to control it.  In practice, we want to choose a _procedure_ that guarantees the FWER is smaller than a predetermined value such as 0.05. We can keep it general and instead of 0.05, use $\alpha$ in our derivations.
+
+Since we are now describing what we do in practice, we no longer have the advantage of knowing _the truth_. Instead, we pose a procedure and try to estimate the FWER.  Let's consider the naive procedure: "reject all the hypotheses with p-value <0.01". For illustrative purposes we will assume all the tests are independent (in the case of testing diets this is a safe assumption; in the case of genes it is not so safe since some groups of genes act together). Let $p_1,\dots,p_{10000}$ be the the p-values we get from each test. These are independent random variables so: 
+
+
+$$\mbox{Pr}(\mbox{at least one rejection}) = 1 -\mbox{Pr}(\mbox{no rejections})$$
+$$\mbox{Pr}(\mbox{at least one rejection}) = 1 - \prod_{i=1}^{1000} \mbox{Pr}(p_i>0.01)$$
+$$\mbox{Pr}(\mbox{at least one rejection}) =  1-0.99^{1000} \approx 1$$
+This by the way is the general formula for the FWER. So our FWER is 1! This is not what we were hoping for. If we wanted it to be lower than $\alpha=0.05$, we failed miserably. 
+
+So what do we do to make the probability of a mistake lower than $\alpha$ ? Using the derivation above we can change the procedure by selecting a more stringent cutoff, previously 0.01, to lower our probability of at least one mistake to be 5%. Namely, by noting that: 
+
+$$\mbox{Pr}(\mbox{at least one rejection}) =  1-(1-k)^{10000}$$
+
+and solving for $k$, we get $1-(1-k)^{10000}=0.01 \implies k = 1-0.99^{1/10000} \approx 1e-6$
+
+This now gives a specific example of a _procedure_. This one is actually called Sidak's procedure. Specifically, we define a set of instructions, such as "reject all the null hypothesis for which p-values < 1e-6". Then, knowing the p-values are random variables, we use statistical theory to compute how many mistakes, on average, we are expected to make if we follow this procedure. More precisely, we compute bounds on these rates; that is, we show that they are smaller than some predetermined value. There is a preference in the life sciences to err on the side of being conservative.
+
+A problem with Sidak's procedure is that it assumes the tests are independent. It therefore only controls FWER when this assumption holds. The Bonferroni correction is more general in that it controls FWER even if the tests are not independent. 
+
+
+$$FWER = \mbox{Pr}(V>0) \leq \mbox{Pr}(V>0 \mid \mbox{all nulls are true})$$
+
+or using the notation from the table above:
+
+$$\mbox{Pr}(V>0) \leq \mbox{Pr}(V>0 \mid m_1=0)$$
+
+The Bonferroni procedure sets $k=\alpha/m$ since we can show that:
+
+
+$$\mbox{Pr}(V>0 \,\mid \, m_1=0) = \mbox{Pr}\left( \min_i \{p_i\} \leq \frac{\alpha}{m} \mid m_1=0 \right)$$
+$$\mbox{Pr}(V>0 \,\mid \, m_1=0) \leq \sum_{i=1}^m \mbox{Pr}\left(p_i \leq \frac{\alpha}{m} \right)$$
+$$\mbox{Pr}(V>0 \,\mid \, m_1=0) = m \frac{\alpha}{m}=\alpha$$
+
+Controlling the FWER at 0.05 is a very conservative approach. Using the p-values computed in the previous section...so now our alpha is 0.05/10000
+
+```{r}
+set.seed(1)
+pvals <- sapply(1:m, function(i){
+  control <- sample(population,N)
+  treatment <- sample(population,N)
+  if(!nullHypothesis[i]) treatment <- treatment + delta
+  t.test(treatment,control)$p.value
+})
+```
+
+...we note that only:
+
+```{r}
+sum(pvals < 0.05/10000)
+```
+
+are called significant after applying the Bonferroni procedure, despite having 1,000 diets that work. 
+
+
+## False Discovery Rate 
+
+There are many situations for which requiring an FWER of 0.05 does not make sense as it is much too strict. For example, consider the very common exercise of running a preliminary small study to determine a handful of candidate genes. This is referred to as a _discovery_ driven project or experiment. We may be in search of an unknown causative gene and more than willing to perform follow-up studies with many more samples on just the candidates. If we develop a procedure that produces, for example, a list of 10 genes of which 1 or 2 pan out as important, the experiment is a resounding success. With a small sample size, the only way to achieve a $FWER \leq 0.05$ is with an empty list of genes. We already saw in the previous section that despite 1,000 diets being effective, we ended up with a list with just 2. Change the sample size to 6 and you very likely get 0.
+
+
+By requiring a FWER $\leq$ 0.05, we are practically assuring 0 power (sensitivity). In many applications, this specificity requirement is over-kill. A widely used alternative to the FWER is the false discovery rate (FDR). The idea behind FDR is to focus on the random variable $Q \equiv V/R$ with $Q=0$ when $R=0$ and $V=0$. Note that $R=0$ (nothing called significant) implies $V=0$ (no false positives). So $Q$ is a random variable that can take values between 0 and 1 and we can define a rate by considering the average of $Q$. To better understand this concept here, we compute $Q$ for the procedure: call everything p-value < 0.05 significant.
+
+### Vectorizing code
+
+Before running the simulation, we are going to _vectorize_ the code. This means that instead of using `sapply` to run `m` tests, we will create a matrix with all data in one call to sample. This code runs several times faster than the code above, which is necessary here due to the fact that we will be generating several simulations. Understanding this chunk of code and how it is equivalent to the code above using `sapply` will take a you long way in helping you code efficiently in R.
+
+```{r, message=FALSE}
+library(genefilter) ##rowttests is here
+set.seed(1)
+##Define groups to be used with rowttests
+g <- factor( c(rep(0,N),rep(1,N)) )
+B <- 1000 ##number of simulations
+Qs <- replicate(B,{
+  ##matrix with control data (rows are tests, columns are mice)
+  controls <- matrix(sample(population, N*m, replace=TRUE),nrow=m)
+  
+  ##matrix with control data (rows are tests, columns are mice)
+  treatments <-  matrix(sample(population, N*m, replace=TRUE),nrow=m)
+  
+  ##add effect to 10% of them, alternative hypothesis = true
+  treatments[which(!nullHypothesis),]<-treatments[which(!nullHypothesis),]+delta
+  
+  ##combine to form one matrix
+  dat <- cbind(controls,treatments)
+  
+ calls <- rowttests(dat,g)$p.value < alpha
+ R=sum(calls) ### sum of number of significants
+ Q=ifelse(R>0,sum(nullHypothesis & calls)/R,0) #sum false positives 
+ #(significant & nullHypothesis == TRUE) 
+ return(Q)
+})
+```
+
+Controlling FDR
+
+The code above is a Monte Carlo simulation that generates 10,000 experiments 1,000 times, each time saving the observed $Q$ o that we can estimate the FDR. Here is a histogram of these values:
+
+
+```{r Q_distribution,message=FALSE, fig.cap="Q (false positives divided by number of features called significant) is a random variable. Here we generated a distribution with a Monte Carlo simulation."}
+library(rafalib)
+mypar(1,1)
+hist(Qs) ##Q is a random variable, this is its distribution
+```
+
+The FDR is the average value of $Q$
+```{r}
+FDR=mean(Qs)
+print(FDR)
+```
+
+The FDR is relatively high here. This is because for 90% of the tests, the null hypotheses is true. This implies that with a 0.05 p-value cut-off, out of 100 tests we incorrectly call between 4 and 5 significant on average. This combined with the fact that we don't "catch" all the cases where the alternative is true, gives us a relatively high FDR. So how can we control this? What if we want lower FDR, say 5%?
+
+To visually see why the FDR is high, we can make a histogram of the p-values. We use a higher value of `m` to have more data from the histogram. We draw a horizontal line representing the uniform distribution one gets for the `m0` cases for which the null is true. 
+
+
+```{r pval_hist, fig.cap="Histogram of p-values. Monte Carlo simulation was used to generate data with m_1 genes having differences between groups."}
+set.seed(1)
+controls <- matrix(sample(population, N*m, replace=TRUE),nrow=m)
+treatments <-  matrix(sample(population, N*m, replace=TRUE),nrow=m)
+treatments[which(!nullHypothesis),]<-treatments[which(!nullHypothesis),]+delta
+dat <- cbind(controls,treatments)
+pvals <- rowttests(dat,g)$p.value 
+
+h <- hist(pvals,breaks=seq(0,1,0.05))
+polygon(c(0,0.05,0.05,0),c(0,0,h$counts[1],h$counts[1]),col="grey")
+abline(h=m0/20)
+```
+
+The first bar (grey) on the left represents cases with p-values smaller than 0.05. From the horizontal line we can infer that about 1/2 are false positives. This is in agreement with an FDR of 0.50.  If we look at the bar for 0.01, we can see a lower FDR, as expected, but would call fewer features significant.
+
+```{r pval_hist2, fig.cap="Histogram of p-values with breaks at every 0.01. Monte Carlo simulation was used to generate data with m_1 genes having differences between groups."}
+h <- hist(pvals,breaks=seq(0,1,0.01))
+polygon(c(0,0.01,0.01,0),c(0,0,h$counts[1],h$counts[1]),col="grey")
+abline(h=m0/100)
+```
+
+As we consider a lower and lower p-value cut-off, the number of features detected decreases (loss of sensitivity), but our FDR also decreases (gain of specificity). So how do we decide on this cut-off? One approach is to set a desired FDR level $\alpha$, and then develop procedures that control the error rate: $FDR \leq \alpha$.
+
+## Benjamini-Hochberg (Advanced)
+
+We want to construct a procedure that guarantees the FDR to be below a certain level $\alpha$. For any given $\alpha$, the Benjamini-Hochberg (1995) procedure is very practical because it simply requires that we are able to compute p-values for each of the individual tests and this permits a procedure to be defined.
+
+For this procedure, order the p-values in increasing order: $p_{(1)},\dots,p_{(m)}$. Then define $k$ to be the largest $i$ for which
+
+$$p_{(i)} \leq \frac{i}{m}\alpha$$
+
+The procedure is to reject tests with p-values smaller or equal to  $p_{(k)}$. Here is an example of how we would select the $k$ with code using the p-values computed above:
+
+```{r pvalue_vs_rank_plot, fig.cap="Plotting p-values plotted against their rank illustrates the Benjamini-Hochberg procedure. The plot on the right is a close-up of the plot on the left.",fig.width=10.5,fig.height=5.25}
+alpha <- 0.05
+i = seq(along=pvals)
+
+mypar(1,2)
+plot(i,sort(pvals))
+abline(0,i/m*alpha)
+##close-up
+plot(i[1:15],sort(pvals)[1:15],main="Close-up")
+abline(0,i/m*alpha)
+k <- max( which( sort(pvals) < i/m*alpha) )
+cutoff <- sort(pvals)[k]
+cat("k =",k,"p-value cutoff=",cutoff)
+```
+
+We can show mathematically that this procedure has FDR lower than 5%. Please see Benjamini-Hochberg (1995) for details. An important outcome is that we now have selected 11 tests instead of just 2. If we are willing to set an FDR of 50% (this means we expect at least 1/2 our genes to be hits), then this list grows to 1063. The FWER does not provide this flexibility since any list of substantial size will result in an FWER of 1.
+
+Keep in mind that we don't have to run the complicated code above as we have functions to do this. For example, using the p-values `pvals` computed above,
+we simply type the following:
+```{r fdr-versus-pval, fig.cap="FDR estimates plotted against p-value."}
+fdr <- p.adjust(pvals, method="fdr")
+mypar(1,1)
+plot(pvals,fdr,log="xy")
+abline(h=alpha,v=cutoff) ##cutoff was computed above
+```
+
+Finally, note that the `p.adjust` function has several options for error rate controlling procedures:
+```{r}
+p.adjust.methods
+```
+It is important to remember that these options offer not just different approaches to estimating error rates, but also that different error rates are estimated: namely FWER and FDR. This is an important distinction. More information is available from:
+
+```{r,eval=FALSE}
+?p.adjust
+```
+
+In summary, requiring that FDR $\leq$ 0.05 is a much more lenient requirement FWER $\leq$ 0.05. Although we will end up with more false positives, FDR gives us much more power. This makes it particularly appropriate for discovery phase experiments where we may accept FDR levels much higher than 0.05.
+
+## Homework: Direct Approach to FDR and q-values (Advanced)
+
+Here we review the results described by John D. Storey in J. R. Statist. Soc. B (2002). One major distinction between Storey's approach and Benjamini and Hochberg's is that we are no longer going to set a $\alpha$ level a priori. Because in many high-throughput experiments we are interested in obtaining some list for validation, we can instead decide beforehand that we will consider all tests with p-values smaller than 0.01. We then want to attach an estimate of an error rate. Using this approach, we are guaranteed to have $R>0$. Note that in the FDR definition above we assigned $Q=0$ in the case that $R=V=0$. We were therefore computing: 
+
+$$
+\mbox{FDR} = E\left( \frac{V}{R} \mid R>0\right) \mbox{Pr}(R>0)
+$$
+
+In the approach proposed by Storey, we condition on having a non-empty list, which implies $R>0$, and we instead compute the _positive FDR_ 
+
+$$
+\mbox{pFDR} = E\left( \frac{V}{R} \mid R>0\right) 
+$$
+
+A second distinction is that while Benjamini and Hochberg's procedure controls under the worst case scenario, in which all null hypotheses are true ( $m=m_0$ ), Storey proposes that we actually try to estimate $m_0$ (NHT) from the data. Because in high-throughput experiments we have so much data, this is certainly possible. The general idea is to pick a relatively high value p-value cut-off, call it $\lambda$, and assume that tests obtaining p-values > $\lambda$ are mostly from cases in which the null hypothesis holds. We can then estimate $\pi_0 = m_0/m$ as: 
+
+$$
+\hat{\pi}_0 = \frac{\#\left\{p_i > \lambda \right\} }{ (1-\lambda) m }
+$$
+
+There are more sophisticated procedures than this, but they follow the same general idea. Here is an example setting $\lambda=0.1$. Using the p-values computed above we have:
+
+```{r pi0_estimate, fig.cap="p-value histogram with pi0 estimate."}
+hist(pvals,breaks=seq(0,1,0.05),freq=FALSE)
+lambda = 0.1
+pi0=sum(pvals> lambda) /((1-lambda)*m)
+abline(h= pi0)
+print(pi0) ##this is close to the true pi0=0.9
+```
+
+With this estimate in place we can, for example, alter the Benjamini and Hochberg procedures to select the $k$ to be the largest value so that: 
+
+$$\hat{\pi}_0 p_{(i)} \leq \frac{i}{m}\alpha$$
+
+However, instead of doing this, we compute a _q-value_ for each test. If a feature resulted in a p-value of $p$, the q-value is the estimated pFDR for a list of all the features with a p-value at least as small as $p$.
+
+In R, this can be computed with the `qvalue` function in the `qvalue` package:
+
+```{r qval_vs_pval,fig.cap="q-values versus p-values.",warning=FALSE}
+library(qvalue)
+res <- qvalue(pvals)
+qvals <- res$qvalues
+plot(pvals,qvals)
+```
+
+we also obtain the estimate of $\hat{\pi}_0$:
+
+```{r}
+res$pi0
+```
+This function uses a more sophisticated approach at estimating $\pi_0$ than what is described above.
+
+Note on estimating $\pi_0$
+In our experience the estimation of $\pi_0$ can be unstable and adds a step of uncertainty to the data analysis pipeline. Although more conservative, the Benjamini-Hochberg procedure is computationally more stable. 
+
+
+888888888888888888888888888888888888888888888888888888
+
+# Exploratory Data Analysis 
+
+An under-appreciated advantage of working with high-throughput data is that problems with the data are sometimes more easily exposed than with low-throughput data. The fact that we have thousands of measurements permits us to see problems that are not apparent when only a few measurements are available. A powerful way to detect these problems is with exploratory data analysis (EDA). Here we review some of the plots that allow us to detect quality problems.
+
+
+## Volcano plots
+
+Here we will use the results obtained from applying t-test to data from a gene expression dataset:
+
+```{r,message=FALSE}
+library(genefilter)
+library(GSE5859Subset)
+data(GSE5859Subset)
+g <- factor(sampleInfo$group)
+results <- rowttests(geneExpression,g)
+pvals <- results$p.value
+```
+
+And we also generate p-values from a dataset for which we know the null is true:
+
+```{r}
+m <- nrow(geneExpression)
+n <- ncol(geneExpression)
+randomData <- matrix(rnorm(n*m),m,n)
+nullpvals <- rowttests(randomData,g)$p.value
+```
+
+As we described earlier, reporting only p-values is a mistake when we can also report effect sizes. With high-throughput data, we can visualize the results by making a _volcano plot_. The idea behind a volcano plot is to show these for all features. In the y-axis we plot -log (base 10) p-values and on the x-axis we plot the effect size. By using -log (base 10), the "highly significant" features appear at the top of the plot. Using log also permits us to better distinguish between small and very small p-values, for example 0.01 and $10^6$.  Here is the volcano plot for our results above:
+
+```{r volcano_plot, fig.align="Volcano plot. Negative log (base 10) p-values plotted against effect size estimates."}
+plot(results$dm,-log10(results$p.value),
+     xlab="Effect size",ylab="- log (base 10) p-values")
+```
+
+Many features with very small p-values, but small effect sizes as we see here, are sometimes indicative of problematic data.
+
+##p-value Histograms
+
+Another plot we can create to get an overall idea of the results is to make histograms of p-values. When we generate completely null data the histogram follows a uniform distribution. With our original dataset we see a higher frequency of smaller p-values. 
+
+```{r pval-hist, fig.cap="P-value histogram. We show a simulated case in which all null hypotheses are true (left) and p-values from the gene expression described above.",fig.width=10.5,fig.height=5.25}
+library(rafalib)
+mypar(1,2)
+hist(nullpvals,ylim=c(0,1400))
+hist(pvals,ylim=c(0,1400))
+```
+
+When we expect most hypotheses to be null and don't see a uniform p-value distribution, it might be indicative of unexpected properties, such as correlated samples. 
+
+If we permute the outcomes and calculate p-values then, if the samples are independent, we should see a uniform distribution. With these data we do not:
+
+```{r pval-hist2, fig.cap="Histogram obtained after permuting labels."}
+permg <- sample(g)
+permresults <- rowttests(geneExpression,permg)
+hist(permresults$p.value)
+```
+
+In a later chapter we will see that the columns in this dataset are not independent and thus the assumptions used to compute the p-values here are incorrect.
+
+## Data boxplots and histograms
+
+With high-throughput data, we have thousands of measurements for each experimental unit. As mentioned earlier, this can help us detect quality issues. For example, if one sample has a completely different distribution than the rest, we might suspect there are problems. Although a complete change in distribution could be due to real biological differences, more often than not it is due to a technical problem. Here we load a large gene expression experiment available from Bioconductor. We "accidentally" use log instead of log2 on one of the samples.
+
+```{r,message=FALSE}
+library(Biobase)
+library(GSE5859) 
+data(GSE5859) 
+ge <- exprs(e) ##ge for gene expression
+ge[,49] <- ge[,49]/log2(exp(1)) ##imitate error
+```
+
+A quick look at a summary of the distribution using boxplots immediately highlights the mistake:
+
+```{r boxplots, fig.cap="Boxplot for log-scale expression for all samples.",fig.width=10.5,fig.height=5.25}
+library(rafalib)
+mypar(1,1)
+boxplot(ge,range=0,names=1:ncol(e),col=ifelse(1:ncol(ge)==49,1,2))
+```
+
+Note that the number of samples is a bit too large here, making it hard to see the boxes. One can instead simply show the boxplot summaries without the boxes:
+
+```{r kaboxplot, fig.cap="The 0.05, 0.25, 0.5, 0.75, and 0.95 quantiles are plotted for each sample.",fig.width=10.5,fig.height=5.25}
+qs <- t(apply(ge,2,quantile,prob=c(0.05,0.25,0.5,0.75,0.95)))
+matplot(qs,type="l",lty=1)
+```
+
+We refer to this figure as a _kaboxplot_ because Karl Broman was the first we saw use it as an alternative to boxplots.
+
+We can also plot all the histograms. Because we have so much data, we create histograms using small bins, then smooth the heights of the bars and then plot _smooth histograms_. We re-calibrate the height of these smooth curves so that if a bar is made with base of size "unit" and height given by the curve at $x_0$, the area approximates the number of points in region of size "unit" centered at $x_0$:
+
+```{r shist, fig.cap="Smooth histograms for each sample."} 
+mypar(1,1)
+shist(ge,unit=0.5)
+```
+
+## MA plot
+
+Scatterplots and correlation are not the best tools to detect replication problems. A better measure of replication can be obtained from examining the differences between the values that should be the same. Therefore, a better plot is a rotation of the scatterplot containing the differences on the y-axis and the averages on the x-axis. This plot was originally named a Bland-Altman plot, but in genomics it is commonly referred to as an MA-plot. The name MA comes from plots of red log intensity minus (M) green intensities versus average (A) log intensities used with microarrays (MA) data.
+
+```{r maplot, fig.cap="Scatter plot (left) and M versus A plot (right) for the same data.", fig.width=10.5,fig.height=5.25}
+x <- ge[,1]
+y <- ge[,2]
+mypar(1,2)
+plot(x,y)
+plot((x+y)/2,x-y)
+```
+
+Note that once we rotate the plot, the fact that these data have differences of about:
+
+```{r}
+sd(y-x)
+```
+
+becomes immediate. The scatterplot shows very strong correlation, which is not necessarily informative here.
+
+We will later introduce dendograms, heatmaps, and multi-dimensional scaling plots.
+
