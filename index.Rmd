@@ -1,5 +1,5 @@
 --- 
-title: "A Minimal Book Example"
+title: "Active Political Analysis"
 author: "Yihui Xie"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
