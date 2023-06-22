@@ -1,6 +1,6 @@
 --- 
 title: "Active Political Analysis"
-author: "Yihui Xie"
+author: "Larry, Curly, and Moe"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
