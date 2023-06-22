@@ -1,4 +1,5 @@
 --- 
+#remotes::install_github('rstudio/rsconnect')
 title: "Active Political Analysis"
 author: "Larry, Curly, and Moe"
 date: "`r Sys.Date()`"
@@ -8,8 +9,9 @@ documentclass: book
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: rstudio/bookdown-demo
-description: "This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook."
+github-repo: TJRyan02/AD_Book
+description: "This is a starting point for a book on Active Political Analysis."
+cover-image: "construction.png"
 ---
 
 # Prerequisites
