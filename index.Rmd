@@ -1,7 +1,7 @@
 --- 
 #remotes::install_github('rstudio/rsconnect')
 title: "Active Political Analysis"
-author: "Larry, Curly, and Moe"
+author: "David Cottrell, Lucy Martin, and Timothy J. Ryan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
@@ -9,14 +9,14 @@ documentclass: book
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: TJRyan02/AD_Book
+github-repo: TJRyan02/APA_Book
 description: "This is a starting point for a book on Active Political Analysis."
 cover-image: "construction.png"
 ---
 
 # Prerequisites
 
-This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports, e.g., a math equation $a^2 + b^2 = c^2$.
+This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports, e.g., a math equation $a^2 + b^2 = c^2$. Juniper.
 
 The **bookdown** package can be installed from CRAN or Github:
 
