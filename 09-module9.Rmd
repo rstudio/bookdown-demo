@@ -1,0 +1,9 @@
+# Module 9: Sampling
+
+**Learning goal**: 
+
+This NY article gave me a nice idea for a possible application: determine what is the plausible makeup of Donald Trump's jury pool:
+
+https://www.nytimes.com/2023/06/22/us/politics/trump-trial-documents-florida-jury.html
+
+

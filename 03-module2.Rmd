@@ -1,0 +1,7 @@
+# Module 2: Why can’t I just use a spreadsheet?: Promises and Challenges of the R Statistical Environment
+
+**Learning goal**: Understand why statistical software is indispensable to data analysis and why R is a popular option. Provide an overview of the R Studio environment. Cultivate a tinkering mindset as concerns learning to use R.
+
+## Activity: How to Build a Grilled Cheese Sandwich
+
+Compare recipes for preparing a grilled cheese sandwich, and discuss how a carefully documented sequence of steps makes it easier to have a conversation about modifications and improvements. (Instructor then provides an overview of the R Studio environment.)

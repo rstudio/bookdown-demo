@@ -1,0 +1,16 @@
+# Module 3: How does R store data? An Introduction to Vectors
+
+**Learning goal**: Understand the simplest way R stores information—as a vector—as well as the distinctions between numeric, character, and boolean vectors. Introduce the idea of an “object” in R, and the idea of a “command”
+
+You can make a vector like this:
+
+```{r chunk-label, echo = TRUE, fig.cap = 'A figure caption.'}
+vector <- c(1,4,9,16,25)
+```
+
+which would be the first few results from the function $y = x^2$.
+
+## Activity: Evaluating a voter registration drive
+
+Convert raw data on a voter registration drive to be stored as several vectors in R. Practice using these vectors to perform simple calculations (e.g. compute the total number of people registered across different campuses).
+

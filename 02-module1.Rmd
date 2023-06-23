@@ -1,0 +1,7 @@
+# Module 1: Using Data to Learn About Politics
+
+**Learning goal**: Understand how practitioners use data to answer political questions. Show historical examples of how better data has changed the world. 
+
+## Three real examples
+
+Here we'll discuss three nice examples.
