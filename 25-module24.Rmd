@@ -1,0 +1,55 @@
+# Part 6: The Friendly Flexible Linear Model {-}
+
+So far, our discussion of linear regression has emphasized its **linearity**. We began by highlighting the similarity between the equation for a line:
+
+$$
+Y = mX + b
+$$
+and the core regression model:
+
+$$
+Y_i = \alpha + \beta_1 X_i + \epsilon_i.
+$$
+When we estimated a particular regression and acquired numerical estimates for an $\alpha$ and a $\beta_1$, we grounded our interpretation of these estimates in our understanding of lines: $\alpha$ represents where the line represented by our model would cross the $Y$-axis, also known as the predicted value of $Y$ when $X$ is equal to zero; $\beta_1$ represents the slope of the line, also known as the predicted increase in $Y$ for a one-unit increase in $X$. Stripped of the technical details, OLS seems like little more than a pretentious way to identify and describe a line!
+
+You might be thinking: a straight line seems like a pretty _constrained_ way to describe relationships in social scientific contexts. Lines are straight and orderly. The patterns and relationships that social scientists tend to be interested in are often not. For example, consider United States deaths attributable to Covid-19 during the early months of the Coronavirus pandemic, plotted below.
+
+```{r covid_prep, echo = FALSE, include=FALSE}
+
+library(tidyverse)
+library(lubridate)
+df <- read_csv("datasets/data_table_for_weekly_deaths__the_united_states.csv", col_select = !c(Geography, `Death Data As Of`), skip=2)
+df$weeks <- mdy(df$Date)
+df <- df %>% filter(weeks<"2020-07-01")
+
+p <- ggplot(df, aes(x=weeks, y=`Weekly Deaths`)) + geom_point() + xlab("Date")
+```
+
+``` {r covid_figure, echo=FALSE, fig.cap = "Covid deaths in the United States, Jan 11 - July 1, 2020. Source: https://covid.cdc.gov/covid-data-tracker."}
+p
+```
+
+The plot tells a story that many people will remember. Through January, February, and much of March, the virus was circulating in the United States, but there were few deaths. (Fewer than 100 per week---too few to see clearly on this plot.) But because viruses can be transmitted exponentially---one person can infect ten others, each of whom can infect ten more, and so on---and because it often takes two or three weeks for a person to die from Covid, the death count spiked dramatically in late March, rising to a peak of 17,201 deaths in the week ending on April 18. It proceeded to taper off after that, as various mitigation measures (social distancing, mask-wearing, etc.) began to take effect. 
+
+``` {r covid_model1, echo = FALSE}
+fit <- lm(`Weekly Deaths` ~ weeks, data = df)
+p <- p + stat_smooth(method = "lm", se = FALSE, color="black", linewidth=.5)
+```
+
+You _could_ use a linear model to summarize this pattern. We have done so in the figure below. Treating the death count as the $Y$ variable and weeks since January 11, 2020 as the $X$ variable, we estimate a slope 58.5 and an intercept of -1.07. This works, but it does not describe the data very well. For instance, our model glosses over the dramatic spike we discuss above. It also predicts that Covid deaths will increase without limit for all time, which is absurd. 
+
+``` {r covid_figure_line, echo=FALSE, fig.cap = "Covid deaths in the United States, Jan 11 - July 1, 2020. Straight line is the linear relationship of best fit."}
+p
+```
+
+This Part of the book imparts a variety of tools to use in this sort of situation. As its title implies, it has a positive message: although _seemingly_ quite constrained, the linear model is more flexible than it seems at first blush. As we will review, it can readily be adapted to situations where our data are categorical (XX Module), where outcomes abruptly swell and dip (as in the Covid example) (XX Module), where the influence of one variable depends on the level of a second variable (XX Module), and more. This surprising flexibility explains why regression is such a workhorse.
+
+First, a note of clarification. Part XX of the book focuses on what data analysts call _functional form_ considerations, by which we mean ways of restructuring the right-hand side of a regression model (the $X$s) to make the model more useful---all while retaining Ordinary Least Squares as our estimation approach. Although OLS is extremely flexible, there are also occasional circumstances that call for other estimation approaches, such as a tool called the Logit model. We will occasionally call your attention to circumstances that would present problems for OLS estimation, so you have a sense of when you will need to acquire additional tools. But, a detailed discussion of estimation procedures beyond OLS will mostly be beyond our scope.
+
+# Module 24: Dummy variables in regression
+
+**Learning goal**: Understand how to incorporate dummy variables into a regression model, and to interpret the ensuing results.
+
+We begin 
+
+

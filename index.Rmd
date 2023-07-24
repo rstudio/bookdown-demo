@@ -20,6 +20,10 @@ We are writing the book because other books in this area are not very friendly, 
 
 This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports, e.g., a math equation $a^2 + b^2 = c^2$.
 
+```{r include=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+```
 
 ```{r include=FALSE}
 # automatically create a bib database for R packages

@@ -2,6 +2,9 @@
 
 **Learning goal**: Understand why statistical software is indispensable to data analysis and why R is a popular option. Provide an overview of the R Studio environment. Cultivate a tinkering mindset as concerns learning to use R.
 
+From Dave: I think we should try to introduce R as a tool that makes our lives easier.  Analysts are often tasked with synthesizing vasts amounts of information.  This can be cumbersome and time-consuming.  We use R to delegate these cumbersome and time-consuming tasks to a computer. Ultimately R is something that we want learn because its saves us time and effort.  I think students have a tendency to frame R as burdensome skill rather than a helpful one.
+
+
 ## Activity: How to Build a Grilled Cheese Sandwich
 
 Compare recipes for preparing a grilled cheese sandwich, and discuss how a carefully documented sequence of steps makes it easier to have a conversation about modifications and improvements. (Instructor then provides an overview of the R Studio environment.)
